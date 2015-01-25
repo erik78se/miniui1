@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MiniUI1</string>
+    <string name="activity_title">Home Screen</string>
+    <string name="server_settings">Server Settings</string>
+    <string name="check_video">Check Video</string>
+    <string name="new_project">New project</string>
+    <string name="manage_projects">Manage Projects</string>
+    <string name="start_last_project">Start Last Project</string>
+
+</resources>
