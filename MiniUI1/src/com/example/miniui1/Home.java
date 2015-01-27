@@ -79,7 +79,7 @@ public class Home extends Activity {
             mpb.setOnClickListener(this);
             slpb.setOnClickListener(this);
             
-            
+            // Debug if true. Should perhaps be detecting a debug state
             if ( true ) {
             	Button db = (Button) rootView.findViewById(R.id.button_debug);
             	db.setOnClickListener(this);
@@ -101,14 +101,16 @@ public class Home extends Activity {
 	        	break;
 	        case R.id.button_newproject:
 	        	Log.d(CLASSTAG, "button_newproject pressed");
+	        	Intent newproject_intent = new Intent(getActivity(), NewProjectActivity.class);
+	        	startActivity(newproject_intent);
 	        	break;
 	        case R.id.button_startlastproject:
 	        	Log.d(CLASSTAG, "button_startlastproject pressed");
 	        	break;
 	        case R.id.button_debug:
 	        	Log.d(CLASSTAG, "button_networktest pressed");
-	        	Intent networktestintent = new Intent(getActivity(), DebugActivity.class);
-	        	startActivity(networktestintent);
+	        	Intent debug_intent = new Intent(getActivity(), DebugActivity.class);
+	        	startActivity(debug_intent);
 	        	break;
 	        default:
 	        	Log.e(CLASSTAG, "The impossible has happened!");

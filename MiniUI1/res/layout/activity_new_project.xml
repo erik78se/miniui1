@@ -1,0 +1,85 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/new_project" />
+
+    <EditText
+        android:id="@+id/editTextProjectName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:layout_marginTop="26dp"
+        android:ems="10"
+        android:hint="Name of the project"
+        android:maxLength="24"
+        android:width="200dp" />
+
+    <EditText
+        android:id="@+id/EditTextProjectTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editTextProjectName"
+        android:layout_below="@+id/editTextProjectName"
+        android:layout_marginTop="28dp"
+        android:ems="10"
+        android:hint="Project Tags"
+        android:maxLength="24"
+        android:width="200dp" />
+
+    <EditText
+        android:id="@+id/EditTextProjectClient"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/EditTextProjectTags"
+        android:layout_below="@+id/EditTextProjectTags"
+        android:layout_marginTop="35dp"
+        android:ems="10"
+        android:hint="Client"
+        android:maxLength="24"
+        android:width="200dp" />
+
+    <EditText
+        android:id="@+id/editTextProjectCreatorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/EditTextProjectClient"
+        android:layout_below="@+id/EditTextProjectClient"
+        android:layout_marginTop="44dp"
+        android:ems="10"
+        android:hint="Your name"
+        android:inputType="textPersonName"
+        android:width="200dp" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/EditTextProjectLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editTextProjectCreatorName"
+        android:layout_below="@+id/editTextProjectCreatorName"
+        android:layout_marginTop="51dp"
+        android:ems="10"
+        android:hint="Location"
+        android:maxLength="24"
+        android:width="200dp" />
+
+    <Button
+        android:id="@+id/button_projectcreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/editTextProjectName"
+        android:layout_marginRight="18dp"
+        android:text="Create" />
+
+</RelativeLayout>
