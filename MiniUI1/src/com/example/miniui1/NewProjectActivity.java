@@ -2,6 +2,13 @@ package com.example.miniui1;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class NewProjectActivity extends Activity {
 	private final String CLASSTAG = "NEW_PROJECT_ACTIVITY";
@@ -25,7 +33,7 @@ public class NewProjectActivity extends Activity {
 	
 	//Identify the current Project we are working on
 	//Perhaps model projects as a Class?
-	private String workingProject;
+	private String mWorkingProject;
 	private File mCurrentDir; //Will be a non null value if storage can be used.
 	
 	
@@ -46,18 +54,21 @@ public class NewProjectActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Log.d(CLASSTAG, "button buttonProjectCreate pressed");
-				if ( mCurrentDir != null) {
-					Log.d(CLASSTAG, "external storage can be used.");
-					Log.d(CLASSTAG, "Total space on device: " + String.valueOf( mCurrentDir.getTotalSpace() ) );
-				} else {
-					Log.d(CLASSTAG, String.format(("external storage can NOT be used, available. Avail: %s, Write: %s"), 
-							mExternalStorageAvailable, mExternalStorageWriteable));
-				}
-				// Start working on the new project
-				// Allocate space: http://stackoverflow.com/questions/2130932/how-to-create-directory-automatically-on-sd-card
-				// Check for already existing project w same name
-				// Create directory for the project
+				checkDiskSpace();
+				
+				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
+				File pdir = createProjectDir(pname);
+				// Set the mWorkingProject to this project name now when its created.
+				mWorkingProject = pname;
 				// Create metadata for project
+
+				if ( createMetaFile(pdir) ) {
+					Log.d(CLASSTAG, "Create metafile");
+				} else {
+					Log.d(CLASSTAG, "Didnt create metafile?");
+				}
+					// TODO Auto-generated catch block
+				
 				// What more?
 				// startActivity(someIntent);
 			}
@@ -65,6 +76,99 @@ public class NewProjectActivity extends Activity {
 		});
 	}
 
+	// Create a json file (metadata)
+	/** { project:
+	 * 		{ start-time: <Date:Time>,
+	 * 		  close-time: <Date:Time>,
+			  status: <open|closed|reopened>,
+			  name: <String>,
+			  client-name: <String>,
+			  creator: <String>,
+			  tag: <String>
+		}
+	 * @throws JSONException 
+	 * @throws IOException 
+**/
+	boolean createMetaFile(File project_dir) {
+		JSONObject json = new JSONObject();
+		JSONObject project = new JSONObject();
+		byte[] content;
+		try {
+			project.put("start-time", "StartTime");
+			project.put("close-time", "CloseTime");
+			project.put("status", "open");
+			project.put("name", project_dir.getName() );
+			project.put("client-name", "A Client Name");
+			project.put("creator", "Erik");
+			project.put("tag", "A Tag");
+			json.put("project",project);
+			content = json.toString(4).getBytes("utf-8");
+		} catch (JSONException je) {
+			Log.e("JSONException in createMetaFile()", je.getMessage());
+			return false;
+		} catch (UnsupportedEncodingException ue) {
+			// TODO Auto-generated catch block
+			Log.e("UnsupportedEncodingException in createMetaFile()", ue.getMessage());
+			return false;
+		}
+				
+		Log.d(CLASSTAG, String.format("About to create file in path : %s)", project_dir.getAbsolutePath() ));
+
+		try {
+			OutputStream fOut = null;
+
+			File file = new File(project_dir, "metadata.json");
+	
+			if ( file.createNewFile() ) {
+				fOut = new FileOutputStream(file);
+				Log.d(CLASSTAG, String.format("Success creating file: %s)", file.getAbsolutePath() ));
+				fOut.write(content);
+				fOut.flush();
+				fOut.close();
+			}
+		}
+		catch (IOException e) {
+			Log.e("IOException in createMetaFile()", e.getMessage());
+			return false;
+		}
+		
+		return true;
+	}
+	
+	
+	// Check disk space, for now always OK
+	void checkDiskSpace() {
+		if ( mCurrentDir != null) {
+			Log.d(CLASSTAG, "external storage can be used.");
+			Log.d(CLASSTAG, "Total space on device: " + String.valueOf( mCurrentDir.getTotalSpace() ) );
+		} else {
+			Log.d(CLASSTAG, String.format(("external storage can NOT be used, available. Avail: %s, Write: %s"), 
+					mExternalStorageAvailable, mExternalStorageWriteable));
+		}
+	}
+	
+	// Create a new project dir.
+	File createProjectDir(String name) {
+		if ( ! name.isEmpty() ) {
+			Log.d(CLASSTAG, String.format("Creating a project with name = %s", name));
+			// Do create
+		} else {
+			Log.d(CLASSTAG, "Empty project name, will not create project."); 
+			}
+		
+		File folder = new File(getExternalFilesDir(null), name);
+		// Create here local dir with name of project
+		// File sdCard = Environment.getExternalStorageDirectory();
+		// File folder = new File(sdCard.getAbsolutePath() + "/" + name);
+		
+		if ( folder.mkdir() ) {
+			Log.d(CLASSTAG, String.format("mkdir = true (Project directory %s was created.)", folder.getName() ));
+		} else {
+			Log.d(CLASSTAG, String.format("mkdir = false (Project directory %s existed already?)", folder.getName() ));
+		}
+		return folder;
+	}
+	
 	
 	// Update the storage states (mExternalStorageAvailable, mExternalStorageWriteable).
 	void updateExternalStorageState() {
