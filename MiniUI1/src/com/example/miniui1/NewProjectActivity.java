@@ -65,8 +65,8 @@ public class NewProjectActivity extends Activity {
 		});
 	}
 
-
-
+	
+	// Update the storage states (mExternalStorageAvailable, mExternalStorageWriteable).
 	void updateExternalStorageState() {
 	    String state = Environment.getExternalStorageState();
 	    if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -100,12 +100,6 @@ public class NewProjectActivity extends Activity {
 	    unregisterReceiver(mExternalStorageReceiver);
 	}
 	
-	
-	// check disk no less than XGB
-	boolean checkDisk() {
-		return true;
-	}
-	
 	void handleExternalStorageState(boolean isAvailable, boolean isWritable) {
 		if ( isAvailable && isWritable ) {
 			mCurrentDir = Environment.getExternalStorageDirectory();
@@ -115,9 +109,6 @@ public class NewProjectActivity extends Activity {
 			//TODO: Inform the user here.
 		}
 	}
-
-	
-	
 }
 	
 
