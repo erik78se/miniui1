@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tags">
+     	<item>Well</item>
+    	<item>Pipe</item>
+    	<item>Leakage</item>
+    </string-array>
+    
+    <string-array name="clients">
+    	<item>PEAB</item>
+    	<item>Scania</item>
+    	<item>Astra</item>
+    </string-array>
+    
+    <string-array name="pipematerial">
+    	<item>Flexible fodder</item>
+    	<item>Steel</item>
+    	<item>Plastic</item>
+    	<item>Other</item>
+    </string-array>
+   
+</resources>

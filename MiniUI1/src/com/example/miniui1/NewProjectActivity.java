@@ -20,8 +20,10 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 public class NewProjectActivity extends Activity {
 	private final String CLASSTAG = "NEW_PROJECT_ACTIVITY";
@@ -31,11 +33,9 @@ public class NewProjectActivity extends Activity {
 	boolean mExternalStorageAvailable = false;
 	boolean mExternalStorageWriteable = false;
 	
-	//Identify the current Project we are working on
-	//Perhaps model projects as a Class?
-	private String mWorkingProject;
 	private File mCurrentDir; //Will be a non null value if storage can be used.
 	
+	Spinner mMaterialSpinner; // materialSpinner
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,19 @@ public class NewProjectActivity extends Activity {
 		addListenerOnButton();
 	}
 
+
+	void populateMaterialsSpinner() {
+		mMaterialSpinner = (Spinner) findViewById(R.id.spinnerMaterial); 
+		// Create an ArrayAdapter using the string array and a default spinner layout
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+		        R.array.pipematerial, android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner
+		mMaterialSpinner.setAdapter(adapter);
+	}
+	
+	
 	public void addListenerOnButton() {
 		 
 		Button button = (Button) findViewById(R.id.button_projectcreate);
@@ -58,10 +71,6 @@ public class NewProjectActivity extends Activity {
 				
 				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
 				File pdir = createProjectDir(pname);
-				// Set the mWorkingProject to this project name now when its created.
-				mWorkingProject = pname;
-				// Create metadata for project
-
 				if ( createMetaFile(pdir) ) {
 					Log.d(CLASSTAG, "Create metafile");
 				} else {
@@ -84,7 +93,7 @@ public class NewProjectActivity extends Activity {
 			  name: <String>,
 			  client-name: <String>,
 			  creator: <String>,
-			  tag: <String>
+			  tag: <String>Pipematerial
 		}
 	 * @throws JSONException 
 	 * @throws IOException 
