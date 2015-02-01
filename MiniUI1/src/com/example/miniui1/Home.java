@@ -69,6 +69,7 @@ public class Home extends Activity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_navigation, container, false);
             
+            
             Button cvb = (Button) rootView.findViewById(R.id.button_checkvideo);
             Button npb = (Button) rootView.findViewById(R.id.button_newproject);
             Button mpb = (Button) rootView.findViewById(R.id.button_manageprojects);
