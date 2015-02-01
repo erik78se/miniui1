@@ -95,6 +95,8 @@ public class Home extends Activity {
 			switch (v.getId()) {
 	        case R.id.button_checkvideo:
 	        	Log.d(CLASSTAG, "button_checkvideo pressed");
+	        	Intent checkvid_intent = new Intent(getActivity(), CheckVideoActivity.class);
+	        	startActivity(checkvid_intent);
 	        	break;
 	        case R.id.button_manageprojects:
 	        	Log.d(CLASSTAG, "button_manageprojects pressed");

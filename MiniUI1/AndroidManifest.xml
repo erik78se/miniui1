@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    
+
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
@@ -38,6 +38,10 @@
         <activity
             android:name=".NewProjectActivity"
             android:label="@string/title_activity_new_project" >
+        </activity>
+        <activity
+            android:name=".CheckVideoActivity"
+            android:label="@string/title_activity_check_video" >
         </activity>
     </application>
 
