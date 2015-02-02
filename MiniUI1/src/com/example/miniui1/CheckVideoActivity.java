@@ -13,7 +13,6 @@ import android.view.TextureView;
 
 public class CheckVideoActivity extends Activity implements TextureView.SurfaceTextureListener {
 	private final String CLASSTAG = "DEBUG_ACTIVITY";
-	private static final String FILE_NAME = "rath264aacts.mp4";
 	
 	private MediaPlayer mMediaPlayer;
 	private TextureView mTextureView;
@@ -30,12 +29,6 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	 private void initView() {
 		 Log.d(CLASSTAG, "initView() called.");
 	     mTextureView = (TextureView) findViewById(R.id.textureview_video);
-	     Log.d(CLASSTAG, "1.");
-	     if ( mTextureView != null ) {
-			Log.d(CLASSTAG, "mTextureView is not null");
-	     } else {
-			Log.d(CLASSTAG, "mTextureView is null");
-	     }
 	        // SurfaceTexture is available only after the TextureView
 	        // is attached to a window and onAttachedToWindow() has been invoked.
 	        // We need to use SurfaceTextureListener to be notified when the SurfaceTexture
@@ -61,12 +54,12 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	            // creating MediaPlayer
 	            mMediaPlayer.prepareAsync();
 
-	            Log.d(CLASSTAG, String.format("setOnPreparedListener for the mediaplayer for %s.", afd.getFileDescriptor().toString()));
+	            Log.d(CLASSTAG, String.format("Attempting mediaplayer for %s.", afd.getFileDescriptor().toString()));
 	            // Play video when the media source is ready for playback.
 	            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 	                @Override
 	                public void onPrepared(MediaPlayer mediaPlayer) {
-	                	Log.d(CLASSTAG, "mediaPlayer.start().");
+	                	Log.d(CLASSTAG, "onPrepared called");
 	                    mediaPlayer.start();
 	                }
 	            });
