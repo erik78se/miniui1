@@ -10,13 +10,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.Button;
+import android.widget.SlidingDrawer.OnDrawerCloseListener;
+import android.widget.SlidingDrawer.OnDrawerOpenListener;
 
 public class CheckVideoActivity extends Activity implements TextureView.SurfaceTextureListener {
 	private final String CLASSTAG = "DEBUG_ACTIVITY";
 	
 	private MediaPlayer mMediaPlayer;
 	private TextureView mTextureView;
-
+	private Button mButtonHandle;
 	
 	// EXAMPLE: http://www.binpress.com/tutorial/video-cropping-with-texture-view/21
 	 @Override
@@ -33,12 +36,12 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	        // is attached to a window and onAttachedToWindow() has been invoked.
 	        // We need to use SurfaceTextureListener to be notified when the SurfaceTexture
 	        // becomes available.
-	     mTextureView.setSurfaceTextureListener(this);
+	     mTextureView.setSurfaceTextureListener(this);	     
 	 }
 
 	 @Override
 	    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i2) {
-		 	Log.d(CLASSTAG, "onSurfaceTextureAvailable() called.");
+		 	Log.d(CLASSTAG, "onSurfaceTextureAvailable() calltestButton.setOnClickListener(testListener);ed.");
 	        Surface surface = new Surface(surfaceTexture);
 
 	        try {
@@ -88,7 +91,7 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 
 	@Override
 	public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stubOpened
 		return false;
 	}
 
@@ -108,4 +111,5 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
             mMediaPlayer = null;
         }
     }
+
 }
