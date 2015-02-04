@@ -1,25 +1,40 @@
 package com.example.miniui1;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnBufferingUpdateListener;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.SlidingDrawer.OnDrawerCloseListener;
-import android.widget.SlidingDrawer.OnDrawerOpenListener;
+import android.widget.Toast;
 
-public class CheckVideoActivity extends Activity implements TextureView.SurfaceTextureListener {
+public class CheckVideoActivity extends Activity implements TextureView.SurfaceTextureListener, 
+															OnBufferingUpdateListener, 
+															OnCompletionListener, 
+															OnPreparedListener, 
+															OnVideoSizeChangedListener  {
 	private final String CLASSTAG = "DEBUG_ACTIVITY";
 	
 	private MediaPlayer mMediaPlayer;
 	private TextureView mTextureView;
-	private Button mButtonHandle;
+	private Button mButtonScreenShot;
 	
 	// EXAMPLE: http://www.binpress.com/tutorial/video-cropping-with-texture-view/21
 	 @Override
@@ -27,6 +42,7 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 		 	super.onCreate(savedInstanceState);
 		    setContentView(R.layout.activity_check_video);
 		    initView();
+		    setupButton();
 		}
 	
 	 private void initView() {
@@ -39,15 +55,70 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	     mTextureView.setSurfaceTextureListener(this);	     
 	 }
 
+	 public void setupButton() {
+         // Assign click listner that takes a screenshot
+		 mButtonScreenShot = (Button) findViewById(R.id.button_takescreenshot);
+		 mButtonScreenShot.setOnClickListener( new OnClickListener() {
+             @Override
+             public void onClick(View v) 
+             {
+            	 Log.d(CLASSTAG, "button_takescreenshot was pressed");
+                 CheckVideoActivity.this.getBitmap(mTextureView);
+             }
+         });
+	 }
+	 
+	 // Create image
+	 public void getBitmap(TextureView vv)
+	    {
+		 	// Get project dir.
+		 	GlobalApplication application = ((GlobalApplication) getApplicationContext());
+		 	String projname = application.getProjectName();
+	        
+		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/%s", projname, "image1.png");
+		 	
+		 	
+	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_SHORT).show();
+
+	        Bitmap bm = vv.getBitmap();
+	        if(bm == null)
+	            Log.e(CLASSTAG,"bitmap is null");
+
+	        OutputStream fout = null;
+	        File imageFile = new File(mPath);
+
+	        try {
+	            fout = new FileOutputStream(imageFile);
+	            bm.compress(Bitmap.CompressFormat.PNG, 90, fout);
+	            fout.flush();
+	            fout.close();
+	        } catch (FileNotFoundException e) {
+	            Log.e(CLASSTAG, "FileNotFoundException");
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            Log.e(CLASSTAG, "IOException");
+	            e.printStackTrace();
+	        }
+	    }
+	 
 	 @Override
 	    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i2) {
-		 	Log.d(CLASSTAG, "onSurfaceTextureAvailable() calltestButton.setOnClickListener(testListener);ed.");
+		 	Log.d(CLASSTAG, "onSurfaceTextureAvailable() calltestButton.setOnClickListener(testListener)");
 	        Surface surface = new Surface(surfaceTexture);
 
 	        try {
 	            // AssetFileDescriptor afd = getAssets().openFd(FILE_NAME);
 	            AssetFileDescriptor afd = this.getResources().openRawResourceFd(R.raw.rath264aacts);
 	            mMediaPlayer = new MediaPlayer();
+	            
+	            // Prepare for screenshot
+	            Log.d(CLASSTAG, "Preparing for handle screenshots.");
+	            mMediaPlayer.setOnBufferingUpdateListener(this);
+	            mMediaPlayer.setOnCompletionListener(this);
+	            mMediaPlayer.setOnPreparedListener(this);
+	            mMediaPlayer.setOnVideoSizeChangedListener(this);
+	            // Done
+	            
 	            mMediaPlayer
 	                    .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 	            mMediaPlayer.setSurface(surface);
@@ -67,6 +138,9 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	                }
 	            });
 
+	   
+	            
+	            
 	        } catch (IllegalArgumentException e) {
 	        	Log.d(CLASSTAG, "IllegalArgumentException" + e.getMessage());
 	        	e.printStackTrace();
@@ -111,5 +185,29 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
             mMediaPlayer = null;
         }
     }
+
+	@Override
+	public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mp) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCompletion(MediaPlayer mp) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onBufferingUpdate(MediaPlayer mp, int percent) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

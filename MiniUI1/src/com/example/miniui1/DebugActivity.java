@@ -25,7 +25,11 @@ public class DebugActivity extends Activity {
 	private Context ctxt;
 	private boolean isConnected = true;
 	
-	
+	// Shouts out project name from global in log
+	public void logGlobalProjectName() {
+		GlobalApplication state = ((GlobalApplication) getApplicationContext());
+		Log.d(CLASSTAG, String.format("Project name: %s", state.getProjectName()) );
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +114,8 @@ public class DebugActivity extends Activity {
 						webView.loadData(summary, "text/html", null);
 					}
 			    }
-				
-				// startActivity(browserIntent);
+				// Dump Project Name
+			    logGlobalProjectName();
 			}
  
 		});
