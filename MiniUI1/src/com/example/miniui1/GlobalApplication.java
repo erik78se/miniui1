@@ -35,7 +35,7 @@ public class GlobalApplication extends Application {
 	// Looks in the "getExternalFilesDir" folder
 	// picks out the file/folder with the last creation date.
 	// uses that for latest project.
-	private void setLatestProject() {
+	public void setLatestProject() {
 		File folder = getExternalFilesDir(null);
 		File[] files = folder.listFiles();
 		    long lastMod = Long.MIN_VALUE;

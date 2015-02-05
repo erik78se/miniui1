@@ -109,6 +109,9 @@ public class Home extends Activity {
 	        	break;
 	        case R.id.button_startlastproject:
 	        	Log.d(CLASSTAG, "button_startlastproject pressed");
+	        	GlobalApplication state = ((GlobalApplication) v.getContext().getApplicationContext() );
+	        	state.setLatestProject();
+	    		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getProjectName()) );
 	        	break;
 	        case R.id.button_debug:
 	        	Log.d(CLASSTAG, "button_networktest pressed");

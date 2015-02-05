@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
@@ -16,7 +19,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -74,11 +76,13 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 		 	// Get project dir.
 		 	GlobalApplication application = ((GlobalApplication) getApplicationContext());
 		 	String projname = application.getProjectName();
-	        
-		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/%s", projname, "image1.png");
 		 	
+		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-hhmmss", Locale.US);
+		 	String picturefilename = simpleDateFormat.format( new Date() );
 		 	
-	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_SHORT).show();
+		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/Observation-%s.%s", projname, picturefilename,"png" );
+		 	
+	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_LONG).show();
 
 	        Bitmap bm = vv.getBitmap();
 	        if(bm == null)
