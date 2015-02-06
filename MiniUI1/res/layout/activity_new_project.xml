@@ -30,7 +30,7 @@
         android:width="200dp" />
 
     <EditText
-        android:id="@+id/EditTextProjectClRelativeient"
+        android:id="@+id/EditTextProjectClient"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

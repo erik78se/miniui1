@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.google.gson.Gson;
+
 public class NewProjectActivity extends Activity {
 	private final String CLASSTAG = "NEW_PROJECT_ACTIVITY";
 	
@@ -71,10 +73,10 @@ public class NewProjectActivity extends Activity {
 				
 				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
 				File pdir = createProjectDir(pname);
-				if ( createMetaFile(pdir) ) {
-					Log.d(CLASSTAG, "Create metafile");
+				if ( createProject(pdir) ) {
+					Log.d(CLASSTAG, "Created project");
 				} else {
-					Log.d(CLASSTAG, "Didnt create metafile?");
+					Log.d(CLASSTAG, "Didnt create Project.");
 				}
 					// TODO Auto-generated catch block
 				
@@ -98,23 +100,21 @@ public class NewProjectActivity extends Activity {
 	 * @throws JSONException 
 	 * @throws IOException 
 **/
-	boolean createMetaFile(File project_dir) {
-		JSONObject json = new JSONObject();
-		JSONObject project = new JSONObject();
+	boolean createProject(File project_dir) {
+		String operator = (String)((EditText)findViewById(R.id.editTextProjectOperator)).getText().toString();
+		String client = (String)((EditText)findViewById(R.id.EditTextProjectClient)).getText().toString();
+		String address = (String)((EditText)findViewById(R.id.EditTextProjectAddress)).getText().toString();
+		// Create a Project with name from the File
+		String name = project_dir.getName();
+		Project mProject = new Project(name, client, operator, address);
+		Gson gson = new Gson();
+		String json = gson.toJson(mProject);  
+		
+		Log.d(CLASSTAG, json);
+		
 		byte[] content;
 		try {
-			project.put("start-time", "StartTime");
-			project.put("close-time", "CloseTime");
-			project.put("status", "open");
-			project.put("name", project_dir.getName() );
-			project.put("client-name", "A Client Name");
-			project.put("creator", "Erik");
-			project.put("tag", "A Tag");
-			json.put("project",project);
-			content = json.toString(4).getBytes("utf-8");
-		} catch (JSONException je) {
-			Log.e("JSONException in createMetaFile()", je.getMessage());
-			return false;
+			content = json.getBytes("utf-8");
 		} catch (UnsupportedEncodingException ue) {
 			// TODO Auto-generated catch block
 			Log.e("UnsupportedEncodingException in createMetaFile()", ue.getMessage());
@@ -134,13 +134,15 @@ public class NewProjectActivity extends Activity {
 				fOut.write(content);
 				fOut.flush();
 				fOut.close();
+				// All has gone well, so sage to add it to global application
+				((GlobalApplication) getApplicationContext()).addProject(mProject);
 			}
 		}
 		catch (IOException e) {
 			Log.e("IOException in createMetaFile()", e.getMessage());
 			return false;
 		}
-		
+
 		return true;
 	}
 	
