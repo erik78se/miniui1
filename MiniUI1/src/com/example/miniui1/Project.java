@@ -1,10 +1,13 @@
 package com.example.miniui1;
 
-import java.io.File;
-import java.text.DateFormat;
 import java.util.Date;
 
+
 public class Project {
+	public static final String STATUS_OPEN = "open";
+	public static final String STATUS_CLOSED = "closed";
+	public static final String STATUS_REOPENED = "reopened";
+	
 	public String name;
 	public String client;
 	public String operator;
@@ -17,7 +20,7 @@ public class Project {
 	public boolean daywater = false;
 	public boolean upstream = false;
 	public boolean downstream = false;
-	public boolean pipe_cleansed = false;
+	public boolean cleansed_before = false;
 	public boolean previously_inspected = false;
 	public String datafolder;
 	
@@ -27,9 +30,21 @@ public class Project {
 		this.client = client;
 		this.operator = operator;
 		this.address = address;
-		this.start_time =  new Date(DateFormat.LONG);
-		this.status = "open";
+		this.start_time = new Date();
+		this.end_time = null;              //use null as a indicator for a non set end time
+		this.status = Project.STATUS_OPEN;
 		this.datafolder = name; //TODO: change this to use a real os-path?
+	}
+	
+	public void close() {
+		this.end_time = new Date();
+		this.status = Project.STATUS_CLOSED;
+	}
+	
+	public void open() {
+		if ( this.status.equalsIgnoreCase( Project.STATUS_CLOSED ) ) {
+			this.status = Project.STATUS_REOPENED;
+		}
 	}
 	
 }

@@ -73,8 +73,13 @@ public class NewProjectActivity extends Activity {
 				
 				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
 				File pdir = createProjectDir(pname);
-				if ( createProject(pdir) ) {
-					Log.d(CLASSTAG, "Created project");
+				Project p = createProject(pdir);
+				if ( p != null ) {
+					Log.d(CLASSTAG, String.format("Created project: %s", p.name));
+					// All has gone well, so sage to add it to global application
+					((GlobalApplication) getApplicationContext()).addProject(p);
+					((GlobalApplication) getApplicationContext()).setWorkingProject(p);
+					
 				} else {
 					Log.d(CLASSTAG, "Didnt create Project.");
 				}
@@ -87,63 +92,44 @@ public class NewProjectActivity extends Activity {
 		});
 	}
 
-	// Create a json file (metadata)
-	/** { project:
-	 * 		{ start-time: <Date:Time>,
-	 * 		  close-time: <Date:Time>,
-			  status: <open|closed|reopened>,
-			  name: <String>,
-			  client-name: <String>,
-			  creator: <String>,
-			  tag: <String>Pipematerial
-		}
-	 * @throws JSONException 
-	 * @throws IOException 
-**/
-	boolean createProject(File project_dir) {
+
+	Project createProject(File project_dir) {
 		String operator = (String)((EditText)findViewById(R.id.editTextProjectOperator)).getText().toString();
 		String client = (String)((EditText)findViewById(R.id.EditTextProjectClient)).getText().toString();
 		String address = (String)((EditText)findViewById(R.id.EditTextProjectAddress)).getText().toString();
+		
 		// Create a Project with name from the File
 		String name = project_dir.getName();
-		Project mProject = new Project(name, client, operator, address);
-		Gson gson = new Gson();
-		String json = gson.toJson(mProject);  
-		
-		Log.d(CLASSTAG, json);
-		
-		byte[] content;
-		try {
-			content = json.getBytes("utf-8");
-		} catch (UnsupportedEncodingException ue) {
-			// TODO Auto-generated catch block
-			Log.e("UnsupportedEncodingException in createMetaFile()", ue.getMessage());
-			return false;
-		}
+		Project mProject = null;
+		byte[] content = null;
 				
-		Log.d(CLASSTAG, String.format("About to create file in path : %s)", project_dir.getAbsolutePath() ));
-
+		Log.d(CLASSTAG, String.format("About to create a project at : %s)", project_dir.getAbsolutePath() ));
+		// Assemble a Project and the assoc. json file that will be transfered along with the project.
 		try {
+			mProject = new Project(name, client, operator, address);
+			mProject.status = Project.STATUS_OPEN;
+			Gson gson = new Gson();
+			String project_json = gson.toJson(mProject);
+			
+			content = project_json.getBytes("utf-8");
 			OutputStream fOut = null;
-
-			File file = new File(project_dir, "metadata.json");
-	
+			File file = new File(project_dir, "project.json");
 			if ( file.createNewFile() ) {
 				fOut = new FileOutputStream(file);
-				Log.d(CLASSTAG, String.format("Success creating file: %s)", file.getAbsolutePath() ));
+				Log.d(CLASSTAG, String.format("Success creating project json file: %s)", file.getAbsolutePath() ));
 				fOut.write(content);
 				fOut.flush();
 				fOut.close();
-				// All has gone well, so sage to add it to global application
-				((GlobalApplication) getApplicationContext()).addProject(mProject);
 			}
 		}
-		catch (IOException e) {
-			Log.e("IOException in createMetaFile()", e.getMessage());
-			return false;
+		catch (UnsupportedEncodingException ue) {
+			Log.e(CLASSTAG, "UnsupportedEncodingException", ue);
 		}
-
-		return true;
+		catch (IOException e) {
+			Log.e(CLASSTAG, "IOException in createMetaFile()", e);
+		}
+		
+		return mProject;
 	}
 	
 	

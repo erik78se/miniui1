@@ -28,7 +28,7 @@ public class DebugActivity extends Activity {
 	// Shouts out project name from global in log
 	public void logGlobalProjectName() {
 		GlobalApplication state = ((GlobalApplication) getApplicationContext());
-		Log.d(CLASSTAG, String.format("Project name: %s", state.getProjectName()) );
+		Log.d(CLASSTAG, String.format("Project name: %s", state.getWorkingProject().name) );
 	}
 	
 	@Override

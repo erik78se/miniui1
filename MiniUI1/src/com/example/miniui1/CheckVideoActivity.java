@@ -75,13 +75,14 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	    {
 		 	// Get project dir.
 		 	GlobalApplication application = ((GlobalApplication) getApplicationContext());
-		 	String projname = application.getProjectName();
+		 	String projname = application.getWorkingProject().name;
+		 	Log.d(CLASSTAG, String.format("Using: %s",projname));
 		 	
-		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-hhmmss", Locale.US);
+		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-hhmm", Locale.US);
 		 	String picturefilename = simpleDateFormat.format( new Date() );
 		 	
 		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/Observation-%s.%s", projname, picturefilename,"png" );
-		 	
+		 	Log.d(CLASSTAG, mPath);
 	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_LONG).show();
 
 	        Bitmap bm = vv.getBitmap();

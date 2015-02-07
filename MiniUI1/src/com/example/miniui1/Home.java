@@ -15,6 +15,7 @@ import android.os.Build;
 
 // Button http://stackoverflow.com/questions/7570575/onclick-inside-fragment-called-on-activity
 import android.widget.Button;
+import android.widget.Toast;
 import android.view.View.OnClickListener;
 
 public class Home extends Activity {
@@ -110,8 +111,12 @@ public class Home extends Activity {
 	        case R.id.button_startlastproject:
 	        	Log.d(CLASSTAG, "button_startlastproject pressed");
 	        	GlobalApplication state = ((GlobalApplication) v.getContext().getApplicationContext() );
-	        	state.setLatestWorkingProject();
-	    		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getProjectName()) );
+	        	if ( state.getWorkingProject() != null ) {
+	        		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getWorkingProject().name) );
+	        	} else {
+	    	        Toast.makeText(getActivity(), "No project started yet.", Toast.LENGTH_LONG).show();
+	        		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getWorkingProject().name) );
+	        	}
 	        	break;
 	        case R.id.button_debug:
 	        	Log.d(CLASSTAG, "button_networktest pressed");

@@ -126,7 +126,7 @@
             android:id="@+id/CheckPipeCleansed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pipe cleansed?" />
+            android:text="Cleansed before?" />
 
     </LinearLayout>
 
