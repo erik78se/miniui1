@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +17,6 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -46,20 +42,7 @@ public class NewProjectActivity extends Activity {
 		updateExternalStorageState();
         startWatchingExternalStorage();
 		addListenerOnButton();
-	}
-
-
-	void populateMaterialsSpinner() {
-		mMaterialSpinner = (Spinner) findViewById(R.id.spinnerMaterial); 
-		// Create an ArrayAdapter using the string array and a default spinner layout
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-		        R.array.pipematerial, android.R.layout.simple_spinner_item);
-		// Specify the layout to use when the list of choices appears
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		// Apply the adapter to the spinner
-		mMaterialSpinner.setAdapter(adapter);
-	}
-	
+	}	
 	
 	public void addListenerOnButton() {
 		 
@@ -70,66 +53,23 @@ public class NewProjectActivity extends Activity {
 			public void onClick(View arg0) {
 				Log.d(CLASSTAG, "button buttonProjectCreate pressed");
 				checkDiskSpace();
-				
 				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
-				File pdir = createProjectDir(pname);
-				Project p = createProject(pdir);
-				if ( p != null ) {
-					Log.d(CLASSTAG, String.format("Created project: %s", p.name));
-					// All has gone well, so sage to add it to global application
+				File pdir = createNewProjectDir(pname);
+				
+				// Make project
+				String operator = (String)((EditText)findViewById(R.id.editTextProjectOperator)).getText().toString();
+				String client = (String)((EditText)findViewById(R.id.EditTextProjectClient)).getText().toString();
+				String address = (String)((EditText)findViewById(R.id.EditTextProjectAddress)).getText().toString();
+				Project p = new Project(pdir.getName(), client, operator, address);
+				if ( p.save(pdir) ) {
 					((GlobalApplication) getApplicationContext()).addProject(p);
 					((GlobalApplication) getApplicationContext()).setWorkingProject(p);
-					
+					Log.d(CLASSTAG, String.format("Created project: %s", p.name));
 				} else {
-					Log.d(CLASSTAG, "Didnt create Project.");
-				}
-					// TODO Auto-generated catch block
-				
-				// What more?
-				// startActivity(someIntent);
+					Log.e(CLASSTAG, "Didnt create Project, couldnt save it.");
+				}				
 			}
- 
 		});
-	}
-
-
-	Project createProject(File project_dir) {
-		String operator = (String)((EditText)findViewById(R.id.editTextProjectOperator)).getText().toString();
-		String client = (String)((EditText)findViewById(R.id.EditTextProjectClient)).getText().toString();
-		String address = (String)((EditText)findViewById(R.id.EditTextProjectAddress)).getText().toString();
-		
-		// Create a Project with name from the File
-		String name = project_dir.getName();
-		Project mProject = null;
-		byte[] content = null;
-				
-		Log.d(CLASSTAG, String.format("About to create a project at : %s)", project_dir.getAbsolutePath() ));
-		// Assemble a Project and the assoc. json file that will be transfered along with the project.
-		try {
-			mProject = new Project(name, client, operator, address);
-			mProject.status = Project.STATUS_OPEN;
-			Gson gson = new Gson();
-			String project_json = gson.toJson(mProject);
-			
-			content = project_json.getBytes("utf-8");
-			OutputStream fOut = null;
-			File file = new File(project_dir, "project.json");
-			if ( file.createNewFile() ) {
-				fOut = new FileOutputStream(file);
-				Log.d(CLASSTAG, String.format("Success creating project json file: %s)", file.getAbsolutePath() ));
-				fOut.write(content);
-				fOut.flush();
-				fOut.close();
-			}
-		}
-		catch (UnsupportedEncodingException ue) {
-			Log.e(CLASSTAG, "UnsupportedEncodingException", ue);
-		}
-		catch (IOException e) {
-			Log.e(CLASSTAG, "IOException in createMetaFile()", e);
-		}
-		
-		return mProject;
 	}
 	
 	
@@ -145,26 +85,23 @@ public class NewProjectActivity extends Activity {
 	}
 	
 	// Create a new project dir.
-	File createProjectDir(String name) {
-		if ( ! name.isEmpty() ) {
-			Log.d(CLASSTAG, String.format("Creating a project with name = %s", name));
-			// Do create
-		} else {
-			Log.d(CLASSTAG, "Empty project name, will not create project."); 
+		File createNewProjectDir(String name) {
+			if ( ! name.isEmpty() ) {
+				Log.d(CLASSTAG, String.format("Creating a project with name = %s", name));
+				// Do create
+			} else {
+				Log.d(CLASSTAG, "Empty project name, will not create project."); 
 			}
-		
-		File folder = new File(getExternalFilesDir(null), name);
-		// Create here local dir with name of project
-		// File sdCard = Environment.getExternalStorageDirectory();
-		// File folder = new File(sdCard.getAbsolutePath() + "/" + name);
-		
-		if ( folder.mkdir() ) {
-			Log.d(CLASSTAG, String.format("mkdir = true (Project directory %s was created.)", folder.getName() ));
-		} else {
-			Log.d(CLASSTAG, String.format("mkdir = false (Project directory %s existed already?)", folder.getName() ));
+			
+			File folder = new File(getExternalFilesDir(null), name);
+			
+			if ( folder.mkdir() ) {
+				Log.d(CLASSTAG, String.format("mkdir = true (Project directory %s was created.)", folder.getName() ));
+			} else {
+				Log.d(CLASSTAG, String.format("mkdir = false (Project directory %s existed already?)", folder.getName() ));
+			}
+			return folder;
 		}
-		return folder;
-	}
 	
 	
 	// Update the storage states (mExternalStorageAvailable, mExternalStorageWriteable).

@@ -9,14 +9,66 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.miniui1.CheckVideoActivity" >
 
-    <TextureView
-        android:id="@+id/textureview_video"
-        android:layout_width="wrap_content"
-        android:layout_height="163dp"
-        android:layout_centerHorizontal="true" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/editTextLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:text="Location1" />
+
+        <Spinner
+            android:id="@+id/spinnerLocations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextureView
+            android:id="@+id/textureview_video"
+            android:layout_width="208dp"
+            android:layout_height="124dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pipe Material" />
+
+            <Spinner
+                android:id="@+id/spinnerPipeMaterial"
+                android:layout_width="76dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Spinner
+                android:id="@+id/spinnerPipeDimension"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/pipedimensions"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <RadioGroup
-        android:id="@+id/radioGroup1"
+        android:id="@+id/radioGroupGrade"
         android:layout_width="286dp"
         android:layout_height="52dp"
         android:contentDescription="Grade"
@@ -68,10 +120,55 @@
         android:id="@+id/editText_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" >
+        android:ems="10" />
 
-        <requestFocus />
-    </EditText>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/checkBoxDaywater"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daywater" />
+
+        <CheckBox
+            android:id="@+id/checkBoxSpillWater"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Spillwater" />
+
+        <CheckBox
+            android:id="@+id/checkBoxPrevInspected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inspected" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/checkBoxUpStream"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Up stream" />
+
+        <CheckBox
+            android:id="@+id/checkBoxCleansedBefore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cleansed before" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_takescreenshot"

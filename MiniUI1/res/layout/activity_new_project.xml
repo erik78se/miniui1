@@ -64,69 +64,14 @@
 
     </EditText>
 
-    <EditText
-        android:id="@+id/EditTextAffectedrooms"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Affected rooms"
-        android:inputType="text"
-        android:lines="1"
-        
-        android:maxLength="24"
-        android:maxLines="1"
-        android:width="200dp" />
-
-    <EditText
-        android:id="@+id/EditTextStartingpoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Starting point"
-        android:inputType="text"
-        android:lines="1"
-        android:maxLength="24"
-        android:maxLines="1"
-        android:width="200dp" />
-
-    <Spinner
-        android:id="@+id/spinnerMaterial"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/pipematerial" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-
-        <CheckBox
-            android:id="@+id/CheckBoxSpillwater"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Spillwater?" />
-
-        <CheckBox
-            android:id="@+id/CheckBoxDaywater"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Daywater?" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-
-        <CheckBox
-            android:id="@+id/CheckBoxDownstream"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Down stream?" />
-
-        <CheckBox
-            android:id="@+id/CheckPipeCleansed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cleansed before?" />
 
     </LinearLayout>
 

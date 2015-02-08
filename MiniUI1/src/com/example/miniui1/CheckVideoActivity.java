@@ -24,7 +24,13 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public class CheckVideoActivity extends Activity implements TextureView.SurfaceTextureListener, 
@@ -32,11 +38,13 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 															OnCompletionListener, 
 															OnPreparedListener, 
 															OnVideoSizeChangedListener  {
-	private final String CLASSTAG = "DEBUG_ACTIVITY";
+	private final String CLASSTAG = "VIDEO";
 	
 	private MediaPlayer mMediaPlayer;
 	private TextureView mTextureView;
 	private Button mButtonScreenShot;
+	private Spinner mPipeMaterialSpinner;
+	private Project mCurrentProject;
 	
 	// EXAMPLE: http://www.binpress.com/tutorial/video-cropping-with-texture-view/21
 	 @Override
@@ -44,6 +52,13 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 		 	super.onCreate(savedInstanceState);
 		    setContentView(R.layout.activity_check_video);
 		    initView();
+		    mCurrentProject = ((GlobalApplication) getApplicationContext()).getWorkingProject();
+		    if ( mCurrentProject == null ) {
+		    	Log.d(CLASSTAG, "Current Project is not set. This will fail.");
+		    }
+		    populateMaterialsSpinner();
+		    //populateLocationsSpinner()
+		    //
 		    setupButton();
 		}
 	
@@ -57,31 +72,89 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	     mTextureView.setSurfaceTextureListener(this);	     
 	 }
 
+	//Sets available materials for the spinner
+	void populateMaterialsSpinner() {
+		Log.d(CLASSTAG, "populateMaterialsSpinner() called.");
+		mPipeMaterialSpinner = (Spinner) findViewById(R.id.spinnerPipeMaterial); 
+		// Create an ArrayAdapter using the string array and a default spinner layout
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+		        R.array.pipematerial, android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner
+		mPipeMaterialSpinner.setAdapter(adapter);
+	}
+	 
 	 public void setupButton() {
+		 Log.d(CLASSTAG, "setupButton() called.");
          // Assign click listner that takes a screenshot
 		 mButtonScreenShot = (Button) findViewById(R.id.button_takescreenshot);
 		 mButtonScreenShot.setOnClickListener( new OnClickListener() {
              @Override
              public void onClick(View v) 
              {
-            	 Log.d(CLASSTAG, "button_takescreenshot was pressed");
-                 CheckVideoActivity.this.getBitmap(mTextureView);
+            	Log.d(CLASSTAG, "button_takescreenshot was pressed");
+                String imgFileName = CheckVideoActivity.this.takeScreenShot(mTextureView);
+                 //Collect input into a New Observation(Grade, New Pipe(etc, Location)), 
+                Observation observationObj = newObservationFromInput();
+                 //Set filename for the Observation:
+                observationObj.setPictureFileName( imgFileName );
+                 //Add Observation to Project
+                mCurrentProject.addObservation(observationObj);
+                Log.d(CLASSTAG, "Added observation.");
+     		 	File projectFolder = new File(getExternalFilesDir(null), mCurrentProject.datafolder);
+     		 	Log.d(CLASSTAG, "Fetched datafolder.");
+     		 	
+     		 	if ( mCurrentProject.save(projectFolder) ) {
+     		 		Log.d(CLASSTAG, "saved Project.");
+     		 	} else {
+     		 		Log.d(CLASSTAG, "Failed to save Project.");
+     		 	}
+                 //Update Spinners
+                 
              }
          });
+		 Log.d(CLASSTAG, "setupButton() done.");
 	 }
 	 
-	 // Create image
-	 public void getBitmap(TextureView vv)
+	 public Observation newObservationFromInput() {
+		 Log.d(CLASSTAG, "newObservationFromInput() called.");
+		 // Get data for Pipe object
+		 Spinner mySpinner=(Spinner) findViewById(R.id.spinnerPipeDimension);
+		 int intDim = Integer.parseInt( mySpinner.getSelectedItem().toString());
+		 mySpinner=(Spinner) findViewById(R.id.spinnerPipeMaterial);
+		 String strMat = mySpinner.getSelectedItem().toString();
+		 String strLoc = ((EditText) findViewById(R.id.editTextLocation)).getText().toString();
+		 Location locationObj = new Location(strLoc);
+		 boolean spillwater = ((CheckBox) findViewById(R.id.checkBoxSpillWater)).isChecked();
+		 boolean daywater = ((CheckBox) findViewById(R.id.checkBoxDaywater)).isChecked();
+		 boolean upstream = ((CheckBox) findViewById(R.id.checkBoxUpStream)).isChecked();
+		 boolean cleansed_before = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
+		 boolean previously_inspected = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
+
+		 Pipe pipeObj = new Pipe(locationObj,intDim, strMat, spillwater, daywater, upstream,
+					cleansed_before,
+					previously_inspected);
+
+		 // Get gata for Observation object
+		 RadioGroup rg = (RadioGroup) findViewById(R.id.radioGroupGrade);
+		 String strGrade = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText().toString();
+	 
+		 return new Observation(pipeObj, strGrade, 0, "Comment");
+	 }
+
+	 // Create image (Return the filename)
+	 public String takeScreenShot(TextureView vv)
 	    {
+		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-hhmmss", Locale.US);
+		 	String strDate = simpleDateFormat.format( new Date() );
+		 	String fileName = String.format("Observation-%s.png", strDate);
+		 	
 		 	// Get project dir.
 		 	GlobalApplication application = ((GlobalApplication) getApplicationContext());
-		 	String projname = application.getWorkingProject().name;
-		 	Log.d(CLASSTAG, String.format("Using: %s",projname));
-		 	
-		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-hhmm", Locale.US);
-		 	String picturefilename = simpleDateFormat.format( new Date() );
-		 	
-		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/Observation-%s.%s", projname, picturefilename,"png" );
+		 	String projName = application.getWorkingProject().name;
+
+		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/%s", projName, fileName );
 		 	Log.d(CLASSTAG, mPath);
 	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_LONG).show();
 
@@ -97,6 +170,7 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	            bm.compress(Bitmap.CompressFormat.PNG, 90, fout);
 	            fout.flush();
 	            fout.close();
+	            return fileName;
 	        } catch (FileNotFoundException e) {
 	            Log.e(CLASSTAG, "FileNotFoundException");
 	            e.printStackTrace();
@@ -104,6 +178,8 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	            Log.e(CLASSTAG, "IOException");
 	            e.printStackTrace();
 	        }
+	        // Dont end up here or file is not really created.
+	        return null;
 	    }
 	 
 	 @Override

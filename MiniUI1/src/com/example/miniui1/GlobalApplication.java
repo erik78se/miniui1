@@ -66,7 +66,10 @@ public class GlobalApplication extends Application {
 				try {
 					BufferedReader br = new BufferedReader( new FileReader(pfn));  
 					//convert the json string back to object
+					
+					
 					Project projectObj = gson.fromJson(br, Project.class);
+					Log.d("GLOBAL","The project: " + projectObj.toString() );
 					//add it to the list of projects
 					this.addProject( projectObj );
 					} 
@@ -94,6 +97,8 @@ public class GlobalApplication extends Application {
 	// picks out the file/folder with the last creation date.
 	// uses that for latest project.
 	// TODO: read the json metadata files to properly create a list of project
+	
+	/**
 	public boolean setLatestWorkingProject() {
 		File appbasepath = getExternalFilesDir(null);
 		File[] project_dirs = appbasepath.listFiles();
@@ -117,6 +122,7 @@ public class GlobalApplication extends Application {
 			return false;
 		}
 	}
+	**/
 	
 	public Project getLatestProject() {
 		// For now, just return any
