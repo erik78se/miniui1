@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.util.Log;
 
@@ -91,6 +94,19 @@ public class Project {
 		return false;
 	}
 	
+	//Gets all unique Locations for this project
+	public String[] getLocations() {
+		String[] s = new String[this.observations.size()];
+		if ( s.length > 0 ) {
+			int i = 0;
+			for (Observation o: this.observations ) {
+				s[i] = o.pipe.location.address;
+				i++;
+			}
+		}
+		Set<String> mySet = new HashSet<String>(Arrays.asList(s));
+		return mySet.toArray(new String[mySet.size()]);
+	}
 	
 	public String toString() {
 		String obs = "";

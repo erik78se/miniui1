@@ -20,10 +20,14 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,13 +41,15 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 															OnBufferingUpdateListener, 
 															OnCompletionListener, 
 															OnPreparedListener, 
-															OnVideoSizeChangedListener  {
+															OnVideoSizeChangedListener
+															{
 	private final String CLASSTAG = "VIDEO";
 	
 	private MediaPlayer mMediaPlayer;
 	private TextureView mTextureView;
 	private Button mButtonScreenShot;
 	private Spinner mPipeMaterialSpinner;
+	private Spinner mLocationsSpinner;
 	private Project mCurrentProject;
 	
 	// EXAMPLE: http://www.binpress.com/tutorial/video-cropping-with-texture-view/21
@@ -52,30 +58,68 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 		 	super.onCreate(savedInstanceState);
 		    setContentView(R.layout.activity_check_video);
 		    initView();
+			mPipeMaterialSpinner = (Spinner) findViewById(R.id.spinnerPipeMaterial);
+		    mLocationsSpinner = (Spinner) findViewById(R.id.spinnerLocations);
 		    mCurrentProject = ((GlobalApplication) getApplicationContext()).getWorkingProject();
-		    if ( mCurrentProject == null ) {
-		    	Log.d(CLASSTAG, "Current Project is not set. This will fail.");
-		    }
+		    setLocationSpinnerListeners();
 		    populateMaterialsSpinner();
-		    //populateLocationsSpinner()
-		    //
+		    populateLocationsSpinner();
 		    setupButton();
 		}
-	
+	 
 	 private void initView() {
-		 Log.d(CLASSTAG, "initView() called.");
-	     mTextureView = (TextureView) findViewById(R.id.textureview_video);
-	        // SurfaceTexture is available only after the TextureView
-	        // is attached to a window and onAttachedToWindow() has been invoked.
-	        // We need to use SurfaceTextureListener to be notified when the SurfaceTexture
-	        // becomes available.
-	     mTextureView.setSurfaceTextureListener(this);	     
+			 Log.d(CLASSTAG, "initView() called.");
+		     mTextureView = (TextureView) findViewById(R.id.textureview_video);
+		        // SurfaceTexture is available only after the TextureView
+		        // is attached to a window and onAttachedToWindow() has been invoked.
+		        // We need to use SurfaceTextureListener to be notified when the SurfaceTexture
+		        // becomes available.
+		     mTextureView.setSurfaceTextureListener(this);	     
+		 }
+
+	 private void setLocationSpinnerListeners() {
+		 	mLocationsSpinner.setOnTouchListener(new OnTouchListener(){
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		    	populateLocationsSpinner();
+		        return false;
+		    }
+		 	});
+		 	
+		 	mLocationsSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+		 		@Override
+		 	    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) 
+		 	    {
+		 			EditText locationText = (EditText) findViewById(R.id.editTextLocation);
+		 			locationText.setText( parentView.getItemAtPosition(position).toString() );
+		 	    }
+
+		 	    @Override
+		 	    public void onNothingSelected(AdapterView<?> parentView) 
+		 	    {
+		 	        
+		 	    }
+			});
+		 	
 	 }
+		 	
+	 private void populateLocationsSpinner() {
+		 Log.d(CLASSTAG, "populateLocationsSpinner() called.");
+		 	
+			mLocationsSpinner = (Spinner) findViewById(R.id.spinnerLocations);
+			// Create an ArrayAdapter using the string array and a default spinner layout
+			ArrayAdapter<String> spinnerArrayAdapter = 
+					new ArrayAdapter<String>( this, android.R.layout.simple_spinner_item, mCurrentProject.getLocations());
+			// Specify the layout to use when the list of choices appears
+			spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			// Apply the adapter to the spinner
+			mLocationsSpinner.setAdapter(spinnerArrayAdapter);		
+	}
+
 
 	//Sets available materials for the spinner
 	void populateMaterialsSpinner() {
 		Log.d(CLASSTAG, "populateMaterialsSpinner() called.");
-		mPipeMaterialSpinner = (Spinner) findViewById(R.id.spinnerPipeMaterial); 
 		// Create an ArrayAdapter using the string array and a default spinner layout
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
 		        R.array.pipematerial, android.R.layout.simple_spinner_item);
