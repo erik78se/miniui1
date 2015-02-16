@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -52,35 +53,43 @@ public class NewProjectActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Log.d(CLASSTAG, "button buttonProjectCreate pressed");
-				checkDiskSpace();
+				checkDisk();
 				String pname = (String)((EditText)findViewById(R.id.editTextProjectName)).getText().toString();
 				File pdir = createNewProjectDir(pname);
-				
-				// Make project
-				String operator = (String)((EditText)findViewById(R.id.editTextProjectOperator)).getText().toString();
-				String client = (String)((EditText)findViewById(R.id.EditTextProjectClient)).getText().toString();
-				String address = (String)((EditText)findViewById(R.id.EditTextProjectAddress)).getText().toString();
-				Project p = new Project(pdir.getName(), client, operator, address);
-				if ( p.save(pdir) ) {
-					((GlobalApplication) getApplicationContext()).addProject(p);
-					((GlobalApplication) getApplicationContext()).setWorkingProject(p);
-					Log.d(CLASSTAG, String.format("Created project: %s", p.name));
-				} else {
-					Log.e(CLASSTAG, "Didnt create Project, couldnt save it.");
-				}				
+
+                if ( pdir != null ) {
+                    // Make project
+                    String operator = (String) ((EditText) findViewById(R.id.editTextProjectOperator)).getText().toString();
+                    String client = (String) ((EditText) findViewById(R.id.EditTextProjectClient)).getText().toString();
+                    String address = (String) ((EditText) findViewById(R.id.EditTextProjectAddress)).getText().toString();
+                    Project p = new Project(pdir.getName(), client, operator, address);
+                    if (p.save(pdir)) {
+                        ((GlobalApplication) getApplicationContext()).addProject(p);
+                        ((GlobalApplication) getApplicationContext()).setWorkingProject(p);
+                        Log.d(CLASSTAG, String.format("Created project: %s", p.name));
+                    } else {
+                        Log.e(CLASSTAG, "Didnt create Project, couldnt save it.");
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Couldnt create new project.",
+                            Toast.LENGTH_LONG).show();
+                }
 			}
 		});
 	}
 	
 	
 	// Check disk space, for now always OK
-	void checkDiskSpace() {
+	void checkDisk() {
 		if ( mCurrentDir != null) {
 			Log.d(CLASSTAG, "external storage can be used.");
 			Log.d(CLASSTAG, "Total space on device: " + String.valueOf( mCurrentDir.getTotalSpace() ) );
 		} else {
-			Log.d(CLASSTAG, String.format(("external storage can NOT be used, available. Avail: %s, Write: %s"), 
+            Log.e(CLASSTAG, String.format(("external storage can NOT be used, available. Avail: %s, Write: %s"),
 					mExternalStorageAvailable, mExternalStorageWriteable));
+            Toast.makeText(getApplicationContext(),"External Storage not available. Will not procede.",
+                           Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -99,6 +108,7 @@ public class NewProjectActivity extends Activity {
 				Log.d(CLASSTAG, String.format("mkdir = true (Project directory %s was created.)", folder.getName() ));
 			} else {
 				Log.d(CLASSTAG, String.format("mkdir = false (Project directory %s existed already?)", folder.getName() ));
+                folder = null;
 			}
 			return folder;
 		}
