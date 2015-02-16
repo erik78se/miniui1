@@ -67,6 +67,9 @@ public class NewProjectActivity extends Activity {
                         ((GlobalApplication) getApplicationContext()).addProject(p);
                         ((GlobalApplication) getApplicationContext()).setWorkingProject(p);
                         Log.d(CLASSTAG, String.format("Created project: %s", p.name));
+                        //Jump to CheckVideoActivity
+                        Intent i = new Intent(getBaseContext(), CheckVideoActivity.class);
+                        startActivity(i);
                     } else {
                         Log.e(CLASSTAG, "Didnt create Project, couldnt save it.");
                     }
