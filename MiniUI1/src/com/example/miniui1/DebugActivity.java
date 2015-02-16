@@ -28,7 +28,11 @@ public class DebugActivity extends Activity {
 	// Shouts out project name from global in log
 	public void logGlobalProjectName() {
 		GlobalApplication state = ((GlobalApplication) getApplicationContext());
-		Log.d(CLASSTAG, String.format("Project name: %s", state.getWorkingProject().name) );
+        try {
+            Log.d(CLASSTAG, String.format("Project name: %s", state.getWorkingProject().name));
+        } catch (NullPointerException ne) {
+            Log.d(CLASSTAG, String.format("No working project is set"));
+        }
 	}
 	
 	@Override

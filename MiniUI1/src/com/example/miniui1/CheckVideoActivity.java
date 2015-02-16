@@ -61,10 +61,19 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 			mPipeMaterialSpinner = (Spinner) findViewById(R.id.spinnerPipeMaterial);
 		    mLocationsSpinner = (Spinner) findViewById(R.id.spinnerLocations);
 		    mCurrentProject = ((GlobalApplication) getApplicationContext()).getWorkingProject();
-		    setLocationSpinnerListeners();
-		    populateMaterialsSpinner();
-		    populateLocationsSpinner();
-		    setupButton();
+
+            if ( mCurrentProject != null) {
+                setLocationSpinnerListeners();
+                populateMaterialsSpinner();
+                populateLocationsSpinner();
+                setupButton();
+            }
+            else
+            {
+                Log.e(CLASSTAG, "A Project is not available. This is not good");
+                Toast.makeText(getApplicationContext(),
+                        "No project set - start a new one first.", Toast.LENGTH_LONG).show();
+            }
 		}
 	 
 	 private void initView() {

@@ -115,7 +115,6 @@ public class Home extends Activity {
 	        		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getWorkingProject().name) );
 	        	} else {
 	    	        Toast.makeText(getActivity(), "No project started yet.", Toast.LENGTH_LONG).show();
-	        		Log.d(CLASSTAG, String.format("Using Project name: %s", state.getWorkingProject().name) );
 	        	}
 	        	break;
 	        case R.id.button_debug:
