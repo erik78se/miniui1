@@ -21,27 +21,36 @@
 	    android:id="@+id/button_checkvideo"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignRight="@+id/button_newproject"
-	    android:layout_below="@+id/textView_ping"
-	    android:text="@string/check_video" />	
+        android:layout_below="@+id/textView_ping"
+	    android:text="@string/check_video"
+        android:layout_alignRight="@+id/button_newproject"
+        android:layout_alignEnd="@+id/button_newproject"
+        android:layout_alignLeft="@+id/button_newproject"
+        android:layout_alignStart="@+id/button_newproject" />
     
     <Button
         android:id="@+id/button_newproject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_checkvideo"
-        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="@string/new_project" />
+        android:text="@string/new_project"
+        android:layout_alignRight="@+id/button_manageprojects"
+        android:layout_alignEnd="@+id/button_manageprojects"
+        android:layout_alignLeft="@+id/button_manageprojects"
+        android:layout_alignStart="@+id/button_manageprojects" />
 
  	<Button
  	    android:id="@+id/button_manageprojects"
  	    android:layout_width="wrap_content"
  	    android:layout_height="wrap_content"
  	    android:layout_below="@+id/button_newproject"
- 	    android:layout_centerHorizontal="true"
- 	    android:layout_centerVertical="true"
- 	    android:text="@string/manage_projects" />
+        android:layout_centerVertical="true"
+ 	    android:text="@string/manage_projects"
+        android:layout_alignLeft="@+id/button_startlastproject"
+        android:layout_alignStart="@+id/button_startlastproject"
+        android:layout_alignRight="@+id/button_startlastproject"
+        android:layout_alignEnd="@+id/button_startlastproject" />
  	
  	<Button
  	    android:id="@+id/button_startlastproject"
@@ -57,8 +66,11 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_below="@+id/button_startlastproject"
-	    android:layout_centerHorizontal="true"
-	    android:text="Debug" />
+        android:text="Debug"
+        android:layout_alignLeft="@+id/button_startlastproject"
+        android:layout_alignStart="@+id/button_startlastproject"
+        android:layout_alignRight="@+id/button_startlastproject"
+        android:layout_alignEnd="@+id/button_startlastproject" />
 
 											
 
