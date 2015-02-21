@@ -44,6 +44,7 @@
             android:name=".CheckVideoActivity"
             android:label="@string/title_activity_check_video" >
         </activity>
+        <activity android:name="ManageProjectActivity" />
     </application>
 
 </manifest>

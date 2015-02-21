@@ -102,6 +102,8 @@ public class Home extends Activity {
 	        	break;
 	        case R.id.button_manageprojects:
 	        	Log.d(CLASSTAG, "button_manageprojects pressed");
+                Intent mng_intent = new Intent(getActivity(), ManageProjectActivity.class);
+                startActivity(mng_intent);
 	        	break;
 	        case R.id.button_newproject:
 	        	Log.d(CLASSTAG, "button_newproject pressed");
