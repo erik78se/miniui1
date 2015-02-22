@@ -72,7 +72,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                     task.switchbutton.setClickable(false);
                     task.execute("rubbish");
                 } else {
-                    Toast.makeText(this, "Dont sync" + v.getTag(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Sync off for: " + v.getTag(), Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
