@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -43,6 +44,18 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                 // Make it possible to find in onClick.
                 row.findViewById(R.id.syncswitch).setTag(position);
                 row.findViewById(R.id.syncswitch).setOnClickListener(ManageProjectActivity.this);
+                
+                // This setOnTouchListener disables switching for the swtichbutton to allow only clicks.
+                row.findViewById(R.id.syncswitch).setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
                 row.findViewById(R.id.progressBar).setTag("progressbar-"+position);
 
                 return row;
