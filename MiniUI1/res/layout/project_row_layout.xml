@@ -27,7 +27,7 @@
             android:id="@+id/numObservations" />
 
         <TextView
-            android:id="@+id/projectName"
+            android:id="@+id/pName"
             android:layout_width="wrap_content"
             android:text="Projname"
             android:layout_height="wrap_content">

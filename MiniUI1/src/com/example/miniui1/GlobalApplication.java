@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import com.google.gson.JsonSyntaxException;
 
 public class GlobalApplication extends Application {
 	
-	List<Project> gProjects = new ArrayList<Project>();
+	ArrayList<Project> gProjects = new ArrayList<Project>();
 	private Project gWorkingProject;
 
 	private static GlobalApplication singleton;

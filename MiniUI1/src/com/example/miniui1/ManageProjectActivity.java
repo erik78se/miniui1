@@ -15,6 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // EXAMPLE FROM: http://www.vogella.com/tutorials/AndroidListView/article.html
 public class ManageProjectActivity extends ListActivity implements  View.OnClickListener {
 
@@ -25,15 +28,14 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String[] values = new String[] { String.format(nameFormat, "ProjectX"),
-                "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2" };
+
+        //All projects goes here.
+        ArrayList<Project> projects = ((GlobalApplication) getApplicationContext()).gProjects;
+
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         getListView().setSelector(android.R.color.darker_gray);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.project_row_layout, R.id.projectName, values) {
+        ProjectArrayAdapter adapter = new ProjectArrayAdapter(this, projects) {
             //Set tag on syncswitches
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -51,8 +53,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        String item = (String) getListAdapter().getItem(position);
-        Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+        Project project = (Project) getListAdapter().getItem(position);
+        Toast.makeText(this, project.name+ " selected", Toast.LENGTH_LONG).show();
     }
 
     // Handle syncswitch clicks
