@@ -38,12 +38,11 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
-                View syncswitch = row.findViewById(R.id.syncswitch);
-                syncswitch.setTag(position);
                 // Make it possible to find in onClick.
+                row.findViewById(R.id.syncswitch).setTag(position);
+                row.findViewById(R.id.syncswitch).setOnClickListener(ManageProjectActivity.this);
                 row.findViewById(R.id.progressBar).setTag("progressbar-"+position);
 
-                syncswitch.setOnClickListener(ManageProjectActivity.this);
                 return row;
             }
         };
@@ -62,19 +61,19 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         // Switch to right button code based on id.
         switch ( v.getId() ) {
             case R.id.syncswitch:
+                Log.d(CLASSTAG, v.getTag().toString());
                 SyncProjectTask task = new SyncProjectTask();
-                task.setSwitchButton((Switch)v);
+                task.setSwitchButton((Switch) v.findViewWithTag(v.getTag()));
                 task.setProgressBar((ProgressBar) v.getRootView().
                         findViewWithTag("progressbar-" + v.getTag()));
                 task.bar.setProgress(0);
-                if ( ! v.isActivated() ) {
+                if ( task.switchbutton.isChecked() ) {
                     //disable -> until task is done.
-                    v.setClickable(false);
+                    task.switchbutton.setClickable(false);
                     task.execute("rubbish");
                 } else {
                     Toast.makeText(this, "Dont sync" + v.getTag(), Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(this, "syncswitch:" + v.getTag(), Toast.LENGTH_LONG).show();
                 break;
             default:
                 Log.e(CLASSTAG, "The impossible has happened!");

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="fill_parent"
     android:weightSum="1"
     android:orientation="horizontal" >
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="180dp"
-        android:layout_height="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:clickable="true"
         android:src="@drawable/ic_launcher" >
     </ImageView>
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="264dp"
-        android:layout_height="fill_parent"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
         android:minWidth="200dp">
 
         <TextView
@@ -28,14 +28,13 @@
 
         <TextView
             android:id="@+id/projectName"
-            android:layout_width="match_parent"
-            android:text="@+id/projectName"
-            android:textSize="12px"
+            android:layout_width="wrap_content"
+            android:text="Projname"
             android:layout_height="wrap_content">
         </TextView>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Creation Time"
@@ -53,7 +52,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:paddingRight="5dp">
 
         <TextView
@@ -63,27 +62,35 @@
             android:text="Project Status"
             android:id="@+id/projectStatus" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_sync"
+            android:clickable="true"
+            android:focusable="false"
+            android:id="@+id/syncswitch"
+            android:singleLine="false" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/progressBar" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Last Sync"
             android:id="@+id/lastSync" />
+
     </LinearLayout>
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_sync"
-        android:clickable="true"
-        android:focusable="false"
-        android:id="@+id/syncswitch"
-        android:singleLine="false" />
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/progressBar" />
 
 </LinearLayout>

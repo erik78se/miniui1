@@ -101,7 +101,7 @@ public class Home extends Activity {
 	        	startActivity(checkvid_intent);
 	        	break;
 	        case R.id.button_manageprojects:
-	        	Log.d(CLASSTAG, "button_manageprojects pressed");
+	        	Log.d(CLASSTAG, "button_manageprojects pressed.");
                 Intent mng_intent = new Intent(getActivity(), ManageProjectActivity.class);
                 startActivity(mng_intent);
 	        	break;
