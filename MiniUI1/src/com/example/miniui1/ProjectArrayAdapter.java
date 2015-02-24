@@ -1,12 +1,16 @@
 package com.example.miniui1;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 
 /**
@@ -16,6 +20,8 @@ import java.util.ArrayList;
  *
  */
 public class ProjectArrayAdapter extends ArrayAdapter<Project> {
+        private final String CLASSTAG = "PROJECT_ARRAY_ADAPTER";
+
         public ProjectArrayAdapter(Context context, ArrayList<Project> projects) {
             super(context, 0, projects);
         }
@@ -31,19 +37,29 @@ public class ProjectArrayAdapter extends ArrayAdapter<Project> {
             }
             // Lookup view for data population
             TextView tvProjectName = (TextView) convertView.findViewById(R.id.pName);
-            TextView tvCreatorName = (TextView) convertView.findViewById(R.id.creatorName);
-            TextView tvCreationTime = (TextView) convertView.findViewById(R.id.creationTime);
-            TextView tvStatus = (TextView) convertView.findViewById(R.id.projectStatus);
-            TextView numObservations = (TextView) convertView.findViewById(R.id.numObservations);
+            TextView tvCreatorName = (TextView) convertView.findViewById(R.id.pCreatorName);
+            TextView tvCreationTime = (TextView) convertView.findViewById(R.id.pCreationTime);
+            TextView tvStatus = (TextView) convertView.findViewById(R.id.pStatus);
+            TextView numObservations = (TextView) convertView.findViewById(R.id.pNumObservations);
 
             // Populate the data into the template view using the data object
             tvProjectName.setText(project.name);
             tvCreatorName.setText(project.operator);
-            tvCreationTime.setText(project.start_time.toString());
+
+            tvCreationTime.setText(DateFormat.
+                    getDateTimeInstance(DateFormat.SHORT,
+                                        DateFormat.SHORT).format(project.start_time));
             tvStatus.setText(project.status);
+            if (project.status.equals("open")) {
+                tvStatus.setTextColor(Color.RED);
+            } else {
+                tvStatus.setTextColor(Color.BLUE);
+            }
             try {
-                numObservations.setText( project.observations.size() );
+                int nObs = ((ArrayList<Observation>)project.observations).size();
+                numObservations.setText( String.valueOf(nObs) );
             } catch (Exception e) {
+                Log.d(CLASSTAG, "Project contains nu observations");
                 numObservations.setText("0");
             }
 

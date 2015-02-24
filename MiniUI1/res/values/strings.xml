@@ -5,5 +5,11 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_new_project">NewProjectActivity</string>
     <string name="title_activity_check_video">CheckVideoActivity</string>
+    <string name="Project">Project</string>
+    <string name="Status">Status</string>
+    <string name="Creator">Creator</string>
+    <string name="CreationTime">Created</string>
+    <string name="last_sync">Last Sync</string>
+
 
 </resources>
