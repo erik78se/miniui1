@@ -1,7 +1,10 @@
 package com.example.miniui1;
 
 import android.app.ListActivity;
+import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,8 +19,25 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.owncloud.android.lib.common.OwnCloudClient;
+import com.owncloud.android.lib.common.OwnCloudClientFactory;
+import com.owncloud.android.lib.common.OwnCloudCredentialsFactory;
+import com.owncloud.android.lib.common.network.OnDatatransferProgressListener;
+import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
+import com.owncloud.android.lib.common.operations.RemoteOperation;
+import com.owncloud.android.lib.common.operations.RemoteOperationResult;
+import com.owncloud.android.lib.resources.files.DownloadRemoteFileOperation;
+import com.owncloud.android.lib.resources.files.FileUtils;
+import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
+import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
+import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.owncloud.android.lib.common.OwnCloudClientFactory.createOwnCloudClient;
+import static com.owncloud.android.lib.common.OwnCloudCredentialsFactory.*;
 
 // EXAMPLE FROM: http://www.vogella.com/tutorials/AndroidListView/article.html
 public class ManageProjectActivity extends ListActivity implements  View.OnClickListener {
@@ -25,6 +45,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
     //Use for project content string format.
     private String nameFormat = "Name: %s";
     protected String CLASSTAG = "MAIN_ACTIVITY";
+    private OwnCloudClient mClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +84,17 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             }
         };
         setListAdapter(adapter);
+
+        /** Setup OwncloudClient **/
+        Uri uri = Uri.parse( "" );
+        mClient = OwnCloudClientFactory.createOwnCloudClient(uri,getApplicationContext(),true);
+        mClient.setCredentials(
+                OwnCloudCredentialsFactory.newBasicCredentials(
+                        "",
+                        ""
+                )
+        );
+
     }
 
     @Override
@@ -77,7 +110,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         switch ( v.getId() ) {
             case R.id.syncswitch:
                 Log.d(CLASSTAG, v.getTag().toString());
-                SyncProjectTask task = new SyncProjectTask();
+                OwnCloudSyncTask task = new OwnCloudSyncTask(mClient);
                 task.setSwitchButton((Switch) v.findViewWithTag(v.getTag()));
                 task.setProgressBar((ProgressBar) v.getRootView().
                         findViewWithTag("progressbar-" + v.getTag()));
@@ -95,7 +128,6 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                 break;
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -118,17 +150,17 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         return super.onOptionsItemSelected(item);
     }
 
-
-    /**
-     *
-     * Private class to handle threads doing progress things.
-     *
-     */
-
-    private class SyncProjectTask extends AsyncTask<String, Integer, Integer> {
+    private class OwnCloudSyncTask extends AsyncTask<String, Integer, Integer> implements
+            OnRemoteOperationListener {
 
         ProgressBar bar;
         Switch switchbutton;
+        OwnCloudClient owncloud_client;
+        Handler mHandler = new Handler();
+
+        public OwnCloudSyncTask(OwnCloudClient oc) {
+            this.owncloud_client = oc;
+        }
 
         public void setProgressBar(ProgressBar bar) {
             this.bar = bar;
@@ -138,19 +170,33 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             this.switchbutton = s;
         }
 
-        /** The system calls this to perform work in a worker thread and
-         * delivers it the parameters given to AsyncTask.execute() */
+        private void startUpload() {
+            GlobalApplication application = ((GlobalApplication) getApplicationContext());
+            String projName = application.getWorkingProject().name;
+            String mPath = getExternalFilesDir(null).toString() + String.format("/%s", projName);
+            File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
+            File fileToUpload = upFolder.listFiles()[0];
+
+            Log.i(CLASSTAG, fileToUpload.getName());
+
+            // File fileToUpload = upFolder.listFiles()[0];
+            // String remotePath = fileToUpload.getName();
+            String remotePath = FileUtils.PATH_SEPARATOR + "documents/" +    fileToUpload.getName();
+            String mimeType = "text/x-json";
+            UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fileToUpload.
+                    getAbsolutePath(), remotePath, mimeType);
+            // uploadOperation.addDatatransferProgressListener(this);
+            uploadOperation.execute(mClient, this, mHandler);
+        }
+
+
+        /**
+         * The system calls this to perform work in a worker thread and
+         * delivers it the parameters given to AsyncTask.execute()
+         */
         protected Integer doInBackground(String... files) {
-            int count = 4;
-            Integer result = 0;
-            for (int i = 0; i <= count; i++) {
-                result++;
-                SystemClock.sleep(2000);
-                bar.setProgress((int) ((i / (float) count) * 100));
-                // Escape early if cancel() is called
-                if (isCancelled()) break;
-            }
-            return result;
+            startUpload();
+            return 1;
         }
 
         @Override
@@ -161,14 +207,40 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             }
         }
 
-        /** The system calls this to perform work in the UI thread and delivers
-         * the result from doInBackground() */
+        /**
+         * The system calls this to perform work in the UI thread and delivers
+         * the result from doInBackground()
+         */
         protected void onPostExecute(Integer result) {
             Log.d("POSTEXE", result.toString());
             switchbutton.setClickable(true);
+        }
+
+        @Override
+        public void onRemoteOperationFinish(RemoteOperation remoteOperation,
+                                            RemoteOperationResult remoteOperationResult) {
+            if (!remoteOperationResult.isSuccess()) {
+                Toast.makeText(getBaseContext(), "FAILED", Toast.LENGTH_SHORT).show();
+                Log.e(CLASSTAG, remoteOperationResult.getLogMessage(), remoteOperationResult.getException());
+
+            } else if (remoteOperation instanceof ReadRemoteFolderOperation) {
+                // onSuccessfulRefresh((ReadRemoteFolderOperation) remoteOperation, remoteOperationResult);
+                Toast.makeText(getBaseContext(), "do onSuccessfulRefresh", Toast.LENGTH_SHORT).show();
+            } else if (remoteOperation instanceof UploadRemoteFileOperation ) {
+                // onSuccessfulUpload((UploadRemoteFileOperation) remoteOperation, remoteOperationResult);
+                Toast.makeText(getBaseContext(), "do onSuccessfulUpload", Toast.LENGTH_SHORT).show();
+            } else if (remoteOperation instanceof RemoveRemoteFileOperation) {
+                // onSuccessfulRemoteDeletion((RemoveRemoteFileOperation) remoteOperation, remoteOperationResult);
+                Toast.makeText(getBaseContext(), "do onSuccessfulRemoteDeletion", Toast.LENGTH_SHORT).show();
+            } else if (remoteOperation instanceof DownloadRemoteFileOperation) {
+                // onSuccessfulDownload((DownloadRemoteFileOperation)remoteOperation, remoteOperationResult);
+                Toast.makeText(getBaseContext(), "do onSuccessfulDownload", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getBaseContext(), "SUCCESS", Toast.LENGTH_SHORT).show();
+            }
+
 
         }
     }
-
 
 }

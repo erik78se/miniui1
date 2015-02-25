@@ -254,4 +254,9 @@ public class SettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 		}
 	}
+
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        return GeneralPreferenceFragment.class.getName().equals(fragmentName);
+    }
 }
