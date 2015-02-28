@@ -1,18 +1,21 @@
 package com.example.miniui1;
 
 import android.app.ListActivity;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -26,6 +29,8 @@ import com.owncloud.android.lib.common.network.OnDatatransferProgressListener;
 import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
 import com.owncloud.android.lib.common.operations.RemoteOperation;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
+import com.owncloud.android.lib.resources.files.ChunkedUploadRemoteFileOperation;
+import com.owncloud.android.lib.resources.files.CreateRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.DownloadRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
@@ -34,6 +39,7 @@ import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.owncloud.android.lib.common.OwnCloudClientFactory.createOwnCloudClient;
@@ -86,12 +92,19 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         setListAdapter(adapter);
 
         /** Setup OwncloudClient **/
-        Uri uri = Uri.parse( "" );
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // Get settings for server
+        String url_from_settings = (String) prefs.getString("server_url", "null");
+        String username_from_settings = (String) prefs.getString("server_username", "null");
+        String password_from_settings = (String) prefs.getString("server_password", "null");
+
+        Uri uri = Uri.parse( url_from_settings );
+
         mClient = OwnCloudClientFactory.createOwnCloudClient(uri,getApplicationContext(),true);
         mClient.setCredentials(
                 OwnCloudCredentialsFactory.newBasicCredentials(
-                        "",
-                        ""
+                        username_from_settings,
+                        password_from_settings
                 )
         );
 
@@ -156,7 +169,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         ProgressBar bar;
         Switch switchbutton;
         OwnCloudClient owncloud_client;
-        Handler mHandler = new Handler();
+        // Handler mHandler = new Handler();
 
         public OwnCloudSyncTask(OwnCloudClient oc) {
             this.owncloud_client = oc;
@@ -170,25 +183,74 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             this.switchbutton = s;
         }
 
+        /** Access to the library method to Upload a File
+         * @param storagePath
+         * @param remotePath
+         * @param mimeType
+         * @param client			Client instance configured to access the target OC server.
+         *
+         * @return
+         */
+        public RemoteOperationResult uploadFile(
+                String storagePath, String remotePath, String mimeType, OwnCloudClient client
+        ) {
+            UploadRemoteFileOperation uploadOperation;
+            if ((new File(storagePath)).length() > ChunkedUploadRemoteFileOperation.CHUNK_SIZE ) {
+                uploadOperation = new ChunkedUploadRemoteFileOperation(
+                        storagePath, remotePath, mimeType
+                );
+            } else {
+                uploadOperation = new UploadRemoteFileOperation(
+                        storagePath, remotePath, mimeType
+                );
+            }
+
+            RemoteOperationResult result = uploadOperation.execute(client);
+            return result;
+        }
+
+        // Example code:
+        // https://doc.owncloud.org/server/7.0/developer_manual/android_library/examples.html
         private void startUpload() {
             GlobalApplication application = ((GlobalApplication) getApplicationContext());
             String projName = application.getWorkingProject().name;
-            String mPath = getExternalFilesDir(null).toString() + String.format("/%s", projName);
-            File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
-            File fileToUpload = upFolder.listFiles()[0];
+            CreateRemoteFolderOperation createOp = new CreateRemoteFolderOperation(projName, true);
+            RemoteOperationResult result = createOp.execute( mClient );
 
-            Log.i(CLASSTAG, fileToUpload.getName());
+            if (result.isSuccess()) {
+                //upload all files in there
+                File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
+                File[] it = upFolder.listFiles();
 
-            // File fileToUpload = upFolder.listFiles()[0];
-            // String remotePath = fileToUpload.getName();
-            String remotePath = FileUtils.PATH_SEPARATOR + "documents/" +    fileToUpload.getName();
-            String mimeType = "text/x-json";
-            UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fileToUpload.
-                    getAbsolutePath(), remotePath, mimeType);
-            // uploadOperation.addDatatransferProgressListener(this);
-            uploadOperation.execute(mClient, this, mHandler);
+                for (int i=0; i<it.length && result.isSuccess(); i++) {
+
+                    String localFile = it[i].getAbsolutePath();
+                    String remoteFile = projName + "/" + it[i].getName();
+
+                    String mimeType = "application/octet-stream";
+                    if ( localFile.endsWith("png")) {
+                        mimeType = "image/png";
+                    }
+                    if ( localFile.endsWith("json")) {
+                        mimeType = "application/json";
+                    }
+                    Log.d(CLASSTAG, String.format("Upload:\n%s\n%s\n%s",
+                            localFile, remoteFile, mimeType));
+                    RemoteOperationResult r = startUpload( localFile,remoteFile,mimeType);
+                    Log.d(CLASSTAG, "Upload result: " + r.toString() + r.getLogMessage() );
+                }
+            }
+
+            if (!result.isSuccess()) {
+                Log.e(CLASSTAG, result.toString());
+            }
         }
-
+        private RemoteOperationResult startUpload (String fileToUpload, String remotePath, String mimeType) {
+            UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation( fileToUpload,
+                    remotePath, mimeType);
+            // uploadOperation.addDatatransferProgressListener();
+            return uploadOperation.execute(mClient);
+        }
 
         /**
          * The system calls this to perform work in a worker thread and
