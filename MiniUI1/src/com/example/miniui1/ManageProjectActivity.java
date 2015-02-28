@@ -32,6 +32,7 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.resources.files.ChunkedUploadRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.CreateRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.DownloadRemoteFileOperation;
+import com.owncloud.android.lib.resources.files.ExistenceCheckRemoteOperation;
 import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
@@ -211,38 +212,39 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
 
         // Example code:
         // https://doc.owncloud.org/server/7.0/developer_manual/android_library/examples.html
+        //TODO: If the files are already there, dont sync them.
         private void startUpload() {
             GlobalApplication application = ((GlobalApplication) getApplicationContext());
             String projName = application.getWorkingProject().name;
-            CreateRemoteFolderOperation createOp = new CreateRemoteFolderOperation(projName, true);
-            RemoteOperationResult result = createOp.execute( mClient );
 
-            if (result.isSuccess()) {
-                //upload all files in there
-                File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
-                File[] it = upFolder.listFiles();
-
-                for (int i=0; i<it.length && result.isSuccess(); i++) {
-
-                    String localFile = it[i].getAbsolutePath();
-                    String remoteFile = projName + "/" + it[i].getName();
-
-                    String mimeType = "application/octet-stream";
-                    if ( localFile.endsWith("png")) {
-                        mimeType = "image/png";
-                    }
-                    if ( localFile.endsWith("json")) {
-                        mimeType = "application/json";
-                    }
-                    Log.d(CLASSTAG, String.format("Upload:\n%s\n%s\n%s",
-                            localFile, remoteFile, mimeType));
-                    RemoteOperationResult r = startUpload( localFile,remoteFile,mimeType);
-                    Log.d(CLASSTAG, "Upload result: " + r.toString() + r.getLogMessage() );
-                }
+            ExistenceCheckRemoteOperation exOp = new ExistenceCheckRemoteOperation(
+                    projName, getBaseContext(), true);
+            RemoteOperationResult res = exOp.execute(mClient);
+            // if directory doesnt exist, create it.
+            if ( res.isSuccess() ) {
+                CreateRemoteFolderOperation createOp = new CreateRemoteFolderOperation(projName, true);
+                res = createOp.execute(mClient);
             }
+            //Upload files to upFolder.
+            File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
+            File[] it = upFolder.listFiles();
 
-            if (!result.isSuccess()) {
-                Log.e(CLASSTAG, result.toString());
+            for (int i=0; i<it.length; i++) {
+
+                String localFile = it[i].getAbsolutePath();
+                String remoteFile = projName + "/" + it[i].getName();
+
+                String mimeType = "application/octet-stream";
+                if ( localFile.endsWith("png")) {
+                    mimeType = "image/png";
+                }
+                if ( localFile.endsWith("json")) {
+                    mimeType = "application/json";
+                }
+                Log.d(CLASSTAG, String.format("Upload:\n%s\n%s\n%s",
+                        localFile, remoteFile, mimeType));
+                RemoteOperationResult r = startUpload( localFile,remoteFile,mimeType);
+                Log.d(CLASSTAG, "Upload result: " + r.toString() + r.getLogMessage() );
             }
         }
         private RemoteOperationResult startUpload (String fileToUpload, String remotePath, String mimeType) {
