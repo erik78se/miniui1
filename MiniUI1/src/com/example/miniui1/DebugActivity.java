@@ -72,7 +72,7 @@ public class DebugActivity extends Activity {
 				
 			   if (info.getState() != NetworkInfo.State.CONNECTED) {
 				   // record the fact that there is not connection
-				   Log.d(CLASSTAG, "NetworkInfo.State.CONNECTED seems CONNECTED.");
+				   Log.d(CLASSTAG, "NetworkInfo.State.CONNECTED seems not CONNECTED.");
 				   isConnected = false;
 			   } else {
 				   Log.d(CLASSTAG, String.format("The network state is: NetworkInfo.State.%s", c));
