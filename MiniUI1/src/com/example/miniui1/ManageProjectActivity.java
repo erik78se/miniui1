@@ -1,8 +1,11 @@
 package com.example.miniui1;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -37,8 +40,10 @@ import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
+import com.owncloud.android.lib.resources.status.GetRemoteStatusOperation;
 
 import java.io.File;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -93,7 +98,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         setListAdapter(adapter);
 
         /** Setup OwncloudClient **/
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences prefs = PreferenceManager.
+                getDefaultSharedPreferences(getApplicationContext());
         // Get settings for server
         String url_from_settings = (String) prefs.getString("server_url", "null");
         String username_from_settings = (String) prefs.getString("server_username", "null");
@@ -111,6 +117,29 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
 
     }
 
+    /* Test connection here:
+     * (http://server/owncloud/status.php)
+     */
+    public boolean testNetworkConnection() {
+        Log.d(CLASSTAG, "testNetworkConnection called");
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                ManageProjectActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean returnValue = false;
+        try {
+            NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+            if (info.isConnected()) {
+                returnValue = true;
+            } else {
+                returnValue = false;
+            }
+        } catch (Exception e) {
+            returnValue = false;
+            Log.e(CLASSTAG, "Exception in testOwnCloudConnections");
+            e.printStackTrace();
+        }
+        return returnValue;
+    }
+
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         Project project = (Project) getListAdapter().getItem(position);
@@ -120,10 +149,12 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
     // Handle syncswitch clicks
     @Override
     public void onClick(View v) {
+        //TODO: This test should not be here. Only during devel.
+        testNetworkConnection();
+
         // Switch to right button code based on id.
         switch ( v.getId() ) {
             case R.id.syncswitch:
-                Log.d(CLASSTAG, v.getTag().toString());
                 OwnCloudSyncTask task = new OwnCloudSyncTask(mClient);
                 task.setSwitchButton((Switch) v.findViewWithTag(v.getTag()));
                 task.setProgressBar((ProgressBar) v.getRootView().
@@ -213,18 +244,34 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         // Example code:
         // https://doc.owncloud.org/server/7.0/developer_manual/android_library/examples.html
         //TODO: If the files are already there, dont sync them.
-        private void startUpload() {
+        //TODO: Perhaps all this needs to go into the doInBackground() since it might be executed
+        // in the UI-thread... not sure.
+        private boolean uploadAllFilesFromProject() {
             GlobalApplication application = ((GlobalApplication) getApplicationContext());
             String projName = application.getWorkingProject().name;
-
+            boolean retValue = false;
+            RemoteOperationResult res;
             ExistenceCheckRemoteOperation exOp = new ExistenceCheckRemoteOperation(
                     projName, getBaseContext(), true);
-            RemoteOperationResult res = exOp.execute(mClient);
+            try {
+                res = exOp.execute(mClient);
+                //TODO: Replace with proper test of connectivity
+                if ( res.isException() ) {
+                    Log.e(CLASSTAG, "ERROR, replace me with a correct test for connectivity" );
+                    return false;
+                }
+
+            } catch ( Exception ce ) {
+                Log.d(CLASSTAG, "Couldnt connect.");
+                ce.printStackTrace();
+                return false;
+            }
             // if directory doesnt exist, create it.
             if ( res.isSuccess() ) {
                 CreateRemoteFolderOperation createOp = new CreateRemoteFolderOperation(projName, true);
                 res = createOp.execute(mClient);
             }
+
             //Upload files to upFolder.
             File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
             File[] it = upFolder.listFiles();
@@ -243,11 +290,17 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                 }
                 Log.d(CLASSTAG, String.format("Upload:\n%s\n%s\n%s",
                         localFile, remoteFile, mimeType));
-                RemoteOperationResult r = startUpload( localFile,remoteFile,mimeType);
+                RemoteOperationResult r = uploadFile( localFile,remoteFile,mimeType);
                 Log.d(CLASSTAG, "Upload result: " + r.toString() + r.getLogMessage() );
             }
+            retValue = true;
+            return retValue;
         }
-        private RemoteOperationResult startUpload (String fileToUpload, String remotePath, String mimeType) {
+
+
+        private RemoteOperationResult uploadFile(String fileToUpload,
+                                                  String remotePath,
+                                                  String mimeType) {
             UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation( fileToUpload,
                     remotePath, mimeType);
             // uploadOperation.addDatatransferProgressListener();
@@ -259,8 +312,12 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
          * delivers it the parameters given to AsyncTask.execute()
          */
         protected Integer doInBackground(String... files) {
-            startUpload();
-            return 1;
+            boolean success = uploadAllFilesFromProject();
+            if ( success ) {
+                return 0;
+            } else {
+                return 1;
+            }
         }
 
         @Override
@@ -277,6 +334,10 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
          */
         protected void onPostExecute(Integer result) {
             Log.d("POSTEXE", result.toString());
+            //TODO: To something intuitive with UI based on result.
+            Toast.makeText(ManageProjectActivity.this,
+                           String.format("Complete: %s",
+                           result.toString()), Toast.LENGTH_LONG).show();
             switchbutton.setClickable(true);
         }
 
