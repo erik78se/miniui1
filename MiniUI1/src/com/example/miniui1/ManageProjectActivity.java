@@ -13,7 +13,9 @@ import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,6 +63,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
     private OwnCloudClient mClient;      // OwnCloud client
     public ArrayList<Project> mProjects; // All projects
     public Project mSelectedProject;
+    public ProjectArrayAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +71,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         //All projects goes here.
         mProjects = ((GlobalApplication) getApplicationContext()).gProjects;
 
-        ProjectArrayAdapter adapter = new ProjectArrayAdapter(this, mProjects) {
+        mAdapter = new ProjectArrayAdapter(this, mProjects) {
             //Set tag on syncswitches
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -93,7 +96,8 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
                 return row;
             }
         };
-        setListAdapter(adapter);
+
+        setListAdapter(mAdapter);
 
         /**
          * Now handle the list-view things, listeners and such.
@@ -101,8 +105,11 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         ListView lv = getListView();
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setSelector(android.R.color.darker_gray);
+        //TODO: I'm not sure why or this is needed?
+        registerForContextMenu(lv);
 
         //Handle Long Clicks
+       /**
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> av, View v, int pos, long id) {
@@ -110,7 +117,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
                 return true;
             }
         });
-
+        **/
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -163,6 +170,35 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         return returnValue;
     }
 
+    /**
+     * MENU for List items
+     */
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.manageprojectmenulist, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.edit:
+                Toast.makeText(getApplicationContext(), "EDIT " + item , Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.delete:
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Log.d(CLASSTAG, "DELETE ON = " + mProjects.get(info.position));
+                mProjects.remove(info.position);
+                mAdapter.notifyDataSetChanged();
+                // **confirmDelete()**;
+                Toast.makeText(getApplicationContext(), "DELETED " + info.position, Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
 
 
     // Handle syncswitch clicks
@@ -195,26 +231,6 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private class OwnCloudSyncTask extends AsyncTask<String, Integer, Integer> implements
             OnRemoteOperationListener {
