@@ -274,13 +274,11 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
 
             //Upload files to upFolder.
             File upFolder = new File(getExternalFilesDir(null), String.format("/%s", projName));
-            File[] it = upFolder.listFiles();
-
-            for (int i=0; i<it.length; i++) {
-
-                String localFile = it[i].getAbsolutePath();
-                String remoteFile = projName + "/" + it[i].getName();
-
+            File[] allFiles = upFolder.listFiles();
+            int count_files = allFiles.length;
+            for (int i=0; i<count_files; i++) {
+                String localFile = allFiles[i].getAbsolutePath();
+                String remoteFile = projName + "/" + allFiles[i].getName();
                 String mimeType = "application/octet-stream";
                 if ( localFile.endsWith("png")) {
                     mimeType = "image/png";
@@ -288,10 +286,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                 if ( localFile.endsWith("json")) {
                     mimeType = "application/json";
                 }
-                Log.d(CLASSTAG, String.format("Upload:\n%s\n%s\n%s",
-                        localFile, remoteFile, mimeType));
                 RemoteOperationResult r = uploadFile( localFile,remoteFile,mimeType);
-                Log.d(CLASSTAG, "Upload result: " + r.toString() + r.getLogMessage() );
+                bar.setProgress((int) ((i+1 / (float) count_files) * 100));
             }
             retValue = true;
             return retValue;
