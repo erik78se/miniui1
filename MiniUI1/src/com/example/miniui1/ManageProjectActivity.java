@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -52,7 +53,7 @@ import static com.owncloud.android.lib.common.OwnCloudClientFactory.createOwnClo
 import static com.owncloud.android.lib.common.OwnCloudCredentialsFactory.*;
 
 // EXAMPLE FROM: http://www.vogella.com/tutorials/AndroidListView/article.html
-public class ManageProjectActivity extends ListActivity implements  View.OnClickListener {
+public class ManageProjectActivity extends ListActivity implements AdapterView.OnClickListener {
 
     //Use for project content string format.
     private String nameFormat = "Name: %s";
@@ -64,12 +65,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //All projects goes here.
         mProjects = ((GlobalApplication) getApplicationContext()).gProjects;
-
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        getListView().setSelector(android.R.color.darker_gray);
 
         ProjectArrayAdapter adapter = new ProjectArrayAdapter(this, mProjects) {
             //Set tag on syncswitches
@@ -97,6 +94,31 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
             }
         };
         setListAdapter(adapter);
+
+        /**
+         * Now handle the list-view things, listeners and such.
+         */
+        ListView lv = getListView();
+        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        lv.setSelector(android.R.color.darker_gray);
+
+        //Handle Long Clicks
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> av, View v, int pos, long id) {
+                Toast.makeText(getApplicationContext(), "LongClick", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mSelectedProject = (Project) getListAdapter().getItem(position);
+                Toast.makeText(getApplicationContext(), mSelectedProject.name +
+                        " selected", Toast.LENGTH_LONG).show();
+            }
+        });
 
         /** Setup OwncloudClient **/
         SharedPreferences prefs = PreferenceManager.
@@ -141,11 +163,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         return returnValue;
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        mSelectedProject = (Project) getListAdapter().getItem(position);
-        Toast.makeText(this, mSelectedProject.name+ " selected", Toast.LENGTH_LONG).show();
-    }
+
 
     // Handle syncswitch clicks
     @Override
