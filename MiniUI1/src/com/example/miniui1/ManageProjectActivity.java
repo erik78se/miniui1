@@ -57,20 +57,21 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
     //Use for project content string format.
     private String nameFormat = "Name: %s";
     protected String CLASSTAG = "MAIN_ACTIVITY";
-    private OwnCloudClient mClient;
-
+    private OwnCloudClient mClient;      // OwnCloud client
+    public ArrayList<Project> mProjects; // All projects
+    public Project mSelectedProject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //All projects goes here.
-        ArrayList<Project> projects = ((GlobalApplication) getApplicationContext()).gProjects;
+        mProjects = ((GlobalApplication) getApplicationContext()).gProjects;
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         getListView().setSelector(android.R.color.darker_gray);
 
-        ProjectArrayAdapter adapter = new ProjectArrayAdapter(this, projects) {
+        ProjectArrayAdapter adapter = new ProjectArrayAdapter(this, mProjects) {
             //Set tag on syncswitches
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -142,8 +143,8 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Project project = (Project) getListAdapter().getItem(position);
-        Toast.makeText(this, project.name+ " selected", Toast.LENGTH_LONG).show();
+        mSelectedProject = (Project) getListAdapter().getItem(position);
+        Toast.makeText(this, mSelectedProject.name+ " selected", Toast.LENGTH_LONG).show();
     }
 
     // Handle syncswitch clicks
@@ -159,13 +160,15 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
                 task.setSwitchButton((Switch) v.findViewWithTag(v.getTag()));
                 task.setProgressBar((ProgressBar) v.getRootView().
                         findViewWithTag("progressbar-" + v.getTag()));
+                task.setSelectedProject(mProjects.get((Integer)v.getTag()));
+
                 task.bar.setProgress(0);
                 if ( task.switchbutton.isChecked() ) {
                     //disable -> until task is done.
                     task.switchbutton.setClickable(false);
                     task.execute("rubbish");
                 } else {
-                    Toast.makeText(this, "Sync off for: " + v.getTag(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Sync off for: " + task.project.name , Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -201,7 +204,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         ProgressBar bar;
         Switch switchbutton;
         OwnCloudClient owncloud_client;
-        // Handler mHandler = new Handler();
+        Project project;
 
         public OwnCloudSyncTask(OwnCloudClient oc) {
             this.owncloud_client = oc;
@@ -214,6 +217,9 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         public void setSwitchButton(Switch s) {
             this.switchbutton = s;
         }
+
+        public void setSelectedProject(Project p) { this.project= p; }
+
 
         /** Access to the library method to Upload a File
          * @param storagePath
@@ -246,9 +252,9 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
         //TODO: If the files are already there, dont sync them.
         //TODO: Perhaps all this needs to go into the doInBackground() since it might be executed
         // in the UI-thread... not sure.
-        private boolean uploadAllFilesFromProject() {
+        private boolean uploadAllFilesFromProject(Project p) {
             GlobalApplication application = ((GlobalApplication) getApplicationContext());
-            String projName = application.getWorkingProject().name;
+            String projName = p.name;
             boolean retValue = false;
             RemoteOperationResult res;
             ExistenceCheckRemoteOperation exOp = new ExistenceCheckRemoteOperation(
@@ -308,7 +314,7 @@ public class ManageProjectActivity extends ListActivity implements  View.OnClick
          * delivers it the parameters given to AsyncTask.execute()
          */
         protected Integer doInBackground(String... files) {
-            boolean success = uploadAllFilesFromProject();
+            boolean success = uploadAllFilesFromProject(this.project);
             if ( success ) {
                 return 0;
             } else {
