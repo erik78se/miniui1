@@ -10,6 +10,8 @@
     <string name="Creator">Creator</string>
     <string name="CreationTime">Created</string>
     <string name="last_sync">Last Sync</string>
+    <string name="menu_edit">edit</string>
+    <string name="menu_delete">delete</string>
 
 
 </resources>

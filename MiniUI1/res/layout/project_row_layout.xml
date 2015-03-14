@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="March 1 10:00 PM"
-                android:id="@+id/lastSync"
+                android:id="@+id/pLastSync"
                 android:layout_column="3"
                 android:layout_weight="1" />
 

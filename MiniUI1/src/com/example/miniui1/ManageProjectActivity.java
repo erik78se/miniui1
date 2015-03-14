@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.owncloud.android.lib.common.OwnCloudClient;
@@ -48,6 +49,7 @@ import com.owncloud.android.lib.resources.status.GetRemoteStatusOperation;
 import java.io.File;
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -188,7 +190,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
                 Toast.makeText(getApplicationContext(), "EDIT " + item , Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.delete:
-                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
                 Log.d(CLASSTAG, "DELETE ON = " + mProjects.get(info.position));
                 mProjects.remove(info.position);
                 mAdapter.notifyDataSetChanged();
@@ -317,6 +319,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
             File[] allFiles = upFolder.listFiles();
             int count_files = allFiles.length;
             for (int i=0; i<count_files; i++) {
+                retValue = false;
                 String localFile = allFiles[i].getAbsolutePath();
                 String remoteFile = projName + "/" + allFiles[i].getName();
                 String mimeType = "application/octet-stream";
@@ -328,8 +331,8 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
                 }
                 RemoteOperationResult r = uploadFile( localFile,remoteFile,mimeType);
                 bar.setProgress((int) ((i+1 / (float) count_files) * 100));
+                retValue = r.isSuccess();
             }
-            retValue = true;
             return retValue;
         }
 
@@ -370,7 +373,19 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
          */
         protected void onPostExecute(Integer result) {
             Log.d("POSTEXE", result.toString());
-            //TODO: To something intuitive with UI based on result.
+            if ( result == 0) { //Upload went OK
+
+                this.project.last_synced = new Date();
+                File projectFolder = new File(getExternalFilesDir(null), this.project.datafolder);
+                this.project.save(projectFolder);
+
+                // TextView t = (TextView)findViewById(R.id.lastSync);
+                // t.setText(this.project.last_synced.toString());
+
+                Log.d(CLASSTAG, this.project.last_synced.toString());
+                mAdapter.notifyDataSetChanged();
+            }
+
             Toast.makeText(ManageProjectActivity.this,
                            String.format("Complete: %s",
                            result.toString()), Toast.LENGTH_LONG).show();

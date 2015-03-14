@@ -41,11 +41,17 @@ public class ProjectArrayAdapter extends ArrayAdapter<Project> {
             TextView tvCreationTime = (TextView) convertView.findViewById(R.id.pCreationTime);
             TextView tvStatus = (TextView) convertView.findViewById(R.id.pStatus);
             TextView numObservations = (TextView) convertView.findViewById(R.id.pNumObservations);
+            TextView tvLastSync = (TextView) convertView.findViewById(R.id.pLastSync);
 
             // Populate the data into the template view using the data object
             tvProjectName.setText(project.name);
             tvCreatorName.setText(project.operator);
 
+            try {
+                tvLastSync.setText(project.last_synced.toString());
+            } catch (Exception e) {
+                tvLastSync.setText("Never synced.");
+            }
             tvCreationTime.setText(DateFormat.
                     getDateTimeInstance(DateFormat.SHORT,
                                         DateFormat.SHORT).format(project.start_time));

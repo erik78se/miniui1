@@ -27,12 +27,12 @@ public class Project {
 	public String address;
 	public Date start_time;
 	public Date end_time;
-	public String status;
+    public Date last_synced; //Updates when uploaded to oc.
+    public String status;
 	public String datafolder;
 	public ArrayList<Observation> observations;
 
-	
-	
+
 	public Project(String name, String client, String operator, String address) {
 		this.name = name;
 		this.client = client;
@@ -43,6 +43,7 @@ public class Project {
 		this.status = Project.STATUS_OPEN;
 		this.datafolder = name; //TODO: change this to use a real os-path?
 		this.observations = new ArrayList<Observation>();
+        this.last_synced = null;
 	}
 	
 	public void close() {
@@ -81,7 +82,8 @@ public class Project {
 			fOut.write(content);
 			fOut.flush();
 			fOut.close();
-			Log.d("PROJECT", String.format("Success creating project json file: %s)", file.getAbsolutePath() ));
+			Log.d("PROJECT", String.format("Success creating project json file: %s)",
+                    file.getAbsolutePath() ));
 			return true;
 		}
 		catch (UnsupportedEncodingException ue) {
@@ -90,7 +92,8 @@ public class Project {
 		catch (IOException e) {
 			Log.e("PROJECT", "IOException", e);
 		}
-		Log.e("PROJECT", String.format("Failed saving project to disk: %s", toFile.getAbsolutePath()));
+		Log.e("PROJECT", String.format("Failed saving project to disk: %s",
+                toFile.getAbsolutePath()));
 		return false;
 	}
 	
@@ -113,7 +116,8 @@ public class Project {
 		if ( this.observations != null ) {
 			obs = this.observations.toString();
 		}
-		return String.format("Project[name: %s, address: %s, folder: %s, obs %s]", this.name, this.address, this.datafolder, obs);
+		return String.format("Project[name: %s, address: %s, folder: %s, obs %s]",
+                this.name, this.address, this.datafolder, obs);
 	}
 	
 }
