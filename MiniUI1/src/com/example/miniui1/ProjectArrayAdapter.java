@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -47,14 +48,14 @@ public class ProjectArrayAdapter extends ArrayAdapter<Project> {
             tvProjectName.setText(project.name);
             tvCreatorName.setText(project.operator);
 
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm");
             try {
-                tvLastSync.setText(project.last_synced.toString());
+
+                tvLastSync.setText(formatter.format( project.last_synced ));
             } catch (Exception e) {
                 tvLastSync.setText("Never synced.");
             }
-            tvCreationTime.setText(DateFormat.
-                    getDateTimeInstance(DateFormat.SHORT,
-                                        DateFormat.SHORT).format(project.start_time));
+            tvCreationTime.setText(formatter.format(project.start_time));
             tvStatus.setText(project.status);
             if (project.status.equals("open")) {
                 tvStatus.setTextColor(Color.RED);
