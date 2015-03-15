@@ -61,6 +61,11 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 			mPipeMaterialSpinner = (Spinner) findViewById(R.id.spinnerPipeMaterial);
 		    mLocationsSpinner = (Spinner) findViewById(R.id.spinnerLocations);
 		    mCurrentProject = ((GlobalApplication) getApplicationContext()).getWorkingProject();
+            if (mCurrentProject != null ) {
+                setTitle(mCurrentProject.name);
+            } else {
+                setTitle("");
+            }
 
             if ( mCurrentProject != null) {
                 setLocationSpinnerListeners();
