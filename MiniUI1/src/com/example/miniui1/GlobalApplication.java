@@ -31,6 +31,7 @@ public class GlobalApplication extends Application {
 	public void setWorkingProject(Project p) {
 		gWorkingProject = p;
 	}
+
 	public Project getWorkingProject() {
 		return gWorkingProject;
 	}
@@ -80,11 +81,13 @@ public class GlobalApplication extends Application {
 					this.addProject( projectObj );
 					}
 				catch ( JsonSyntaxException jse ) {
-					Log.e("GLOBAL", String.format("Project file has JsonSyntaxException issues: %s", pdir.getName() ) );
+					Log.e("GLOBAL", String.format("Project file has JsonSyntaxException issues: %s",
+                            pdir.getName() ) );
                     jse.printStackTrace();
 				}
 				catch ( JsonIOException jioe ) {
-					Log.e("GLOBAL", String.format("Project file has JsonIOException issues: %s", pdir.getName() ) );
+					Log.e("GLOBAL", String.format("Project file has JsonIOException issues: %s",
+                            pdir.getName() ) );
 					jioe.printStackTrace();
 				}
 				catch ( FileNotFoundException e ) {
