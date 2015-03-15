@@ -119,5 +119,4 @@ public class Project {
 		return String.format("Project[name: %s, address: %s, folder: %s, obs %s]",
                 this.name, this.address, this.datafolder, obs);
 	}
-	
 }

@@ -12,6 +12,7 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
@@ -152,11 +153,13 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
              public void onClick(View v) 
              {
             	Log.d(CLASSTAG, "button_takescreenshot was pressed");
-                String imgFileName = CheckVideoActivity.this.takeScreenShot(mTextureView);
-                 //Collect input into a New Observation(Grade, New Pipe(etc, Location)), 
+                File imgFile = takeScreenShot(mTextureView);
+                // Make a thumb
+                createThumb(imgFile);
+                //Collect input into a New Observation(Grade, New Pipe(etc, Location)),
                 Observation observationObj = newObservationFromInput();
                  //Set filename for the Observation:
-                observationObj.setPictureFileName( imgFileName );
+                observationObj.setPictureFileName( imgFile.getName() );
                  //Add Observation to Project
                 mCurrentProject.addObservation(observationObj);
                 Log.d(CLASSTAG, "Added observation.");
@@ -206,24 +209,23 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
          return observation;
 	 }
 
-	 // Create image (Return the filename)
-	 public String takeScreenShot(TextureView vv)
+	 /**
+      * Create image for the observation (Return the filename)
+      *
+     **/
+	 public File takeScreenShot(TextureView vv)
 	    {
 		 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-hhmmss", Locale.US);
 		 	String strDate = simpleDateFormat.format( new Date() );
 		 	String fileName = String.format("Observation-%s.png", strDate);
-		 	
-		 	// Get project dir.
-		 	GlobalApplication application = ((GlobalApplication) getApplicationContext());
-		 	String projName = application.getWorkingProject().name;
+		 	String projName = mCurrentProject.name;
 
-		 	String mPath = getExternalFilesDir(null).toString() + String.format("/%s/%s", projName, fileName );
-		 	Log.d(CLASSTAG, mPath);
-	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " + mPath, Toast.LENGTH_LONG).show();
+		 	String mPath = getExternalFilesDir(null).toString() +
+                    String.format("/%s/%s", projName, fileName );
+	        Toast.makeText(getApplicationContext(), "Capturing Screenshot: " +
+                    mPath, Toast.LENGTH_LONG).show();
 
 	        Bitmap bm = vv.getBitmap();
-	        if(bm == null)
-	            Log.e(CLASSTAG,"bitmap is null");
 
 	        OutputStream fout = null;
 	        File imageFile = new File(mPath);
@@ -233,7 +235,7 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	            bm.compress(Bitmap.CompressFormat.PNG, 90, fout);
 	            fout.flush();
 	            fout.close();
-	            return fileName;
+	            return imageFile;
 	        } catch (FileNotFoundException e) {
 	            Log.e(CLASSTAG, "FileNotFoundException");
 	            e.printStackTrace();
@@ -242,9 +244,64 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 	            e.printStackTrace();
 	        }
 	        // Dont end up here or file is not really created.
-	        return null;
+	        return imageFile;
 	    }
-	 
+
+        /**
+         * Creates a "thumbnail image"
+         *
+          * @param fromfile  (A file to use as image for the Thumbnail)
+         * @return  - the File (thumbnail)
+         */
+        public File createThumb(File fromfile) {
+
+            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+
+            // obtain the size of the image, without loading it in memory
+            bitmapOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(fromfile.getAbsolutePath(), bitmapOptions);
+
+            // find the best scaling factor for the desired dimensions
+            int desiredWidth = 100;
+            int desiredHeight = 80;
+            float widthScale = (float)bitmapOptions.outWidth/desiredWidth;
+            float heightScale = (float)bitmapOptions.outHeight/desiredHeight;
+            float scale = Math.min(widthScale, heightScale);
+
+            int sampleSize = 1;
+            while (sampleSize < scale) {
+                sampleSize *= 2;
+            }
+            bitmapOptions.inSampleSize = sampleSize; // this value must be a power of 2,
+            // this is why you can not have an image scaled as you would like to have
+            bitmapOptions.inJustDecodeBounds = false; // now we want to load the image
+
+            // Let's load just the part of the image necessary for creating the thumbnail,
+            // not the whole image
+            Bitmap thumbnail = BitmapFactory.decodeFile(fromfile.getAbsolutePath(), bitmapOptions);
+
+            // Save a thumbnail if it doesnt exist.
+            // This will probably be the first image for all projects.
+            // which is probably good enough.
+            File thumbnailFile = new File(getExternalFilesDir(null).toString()
+                    + String.format("/%s/%s", mCurrentProject.name, "thumb.jpeg" ));
+            if ( !thumbnailFile.exists() ) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(thumbnailFile);
+                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                    fos.flush();
+                    fos.close();
+                } catch (IOException ioe) {
+                    Log.e(CLASSTAG, "IOException");
+                    ioe.printStackTrace();
+                }
+            }
+            // Use the thumbail on an ImageView or recycle it!
+            thumbnail.recycle();
+            return thumbnailFile;
+    }
+
+
 	 @Override
 	    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i2) {
 		 	Log.d(CLASSTAG, "onSurfaceTextureAvailable() calltestButton.setOnClickListener(testListener)");

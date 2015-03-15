@@ -4,6 +4,8 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -47,6 +49,8 @@ import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 import com.owncloud.android.lib.resources.status.GetRemoteStatusOperation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -107,7 +111,8 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         ListView lv = getListView();
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setSelector(android.R.color.darker_gray);
-        //TODO: I'm not sure why or this is needed?
+
+        // Make the items avialable for longcklick menu
         registerForContextMenu(lv);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -214,7 +219,8 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
                     task.switchbutton.setClickable(false);
                     task.execute("rubbish");
                 } else {
-                    Toast.makeText(this, "Sync off for: " + task.project.name , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Sync off for: " + task.project.name ,
+                            Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -408,5 +414,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
 
         }
     }
+
+
 
 }
