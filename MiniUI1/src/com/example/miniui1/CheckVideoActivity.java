@@ -182,18 +182,23 @@ public class CheckVideoActivity extends Activity implements TextureView.SurfaceT
 		 boolean spillwater = ((CheckBox) findViewById(R.id.checkBoxSpillWater)).isChecked();
 		 boolean daywater = ((CheckBox) findViewById(R.id.checkBoxDaywater)).isChecked();
 		 boolean upstream = ((CheckBox) findViewById(R.id.checkBoxUpStream)).isChecked();
-		 boolean cleansed_before = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
-		 boolean previously_inspected = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
+		 boolean clnsbfr = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
+		 boolean previnsp = ((CheckBox) findViewById(R.id.checkBoxCleansedBefore)).isChecked();
+
+         //The observation might be uncertain grade.
+         boolean uncertain = ((CheckBox) findViewById(R.id.checkBoxUncertain)).isChecked();
 
 		 Pipe pipeObj = new Pipe(locationObj,intDim, strMat, spillwater, daywater, upstream,
-					cleansed_before,
-					previously_inspected);
+					clnsbfr,
+					previnsp);
 
 		 // Get gata for Observation object
 		 RadioGroup rg = (RadioGroup) findViewById(R.id.radioGroupGrade);
 		 String strGrade = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText().toString();
-	 
-		 return new Observation(pipeObj, strGrade, 0, "Comment");
+
+         Observation observation = new Observation(pipeObj, strGrade, 0, "Comment",uncertain);
+
+         return observation;
 	 }
 
 	 // Create image (Return the filename)
