@@ -110,16 +110,6 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
         //TODO: I'm not sure why or this is needed?
         registerForContextMenu(lv);
 
-        //Handle Long Clicks
-       /**
-        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> av, View v, int pos, long id) {
-                Toast.makeText(getApplicationContext(), "LongClick", Toast.LENGTH_LONG).show();
-                return true;
-            }
-        });
-        **/
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
