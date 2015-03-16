@@ -20,7 +20,11 @@ public class Project {
 	public static final String STATUS_OPEN = "open";
 	public static final String STATUS_CLOSED = "closed";
 	public static final String STATUS_REOPENED = "reopened";
-	
+
+    public static final String METRIC_SYSTEM_IMPERIAL = "IMPERIAL";
+    public static final String METRIC_SYSTEM_METRIC = "METRIC";
+    public static final String METRIC_SYSTEM_STANDARD = "STANDARD";
+
 	public String name;
 	public String client;
 	public String operator;
@@ -31,9 +35,10 @@ public class Project {
     public String status;
 	public String datafolder;
 	public ArrayList<Observation> observations;
+    public String metric_system;
 
 
-	public Project(String name, String client, String operator, String address) {
+    public Project(String name, String client, String operator, String address) {
 		this.name = name;
 		this.client = client;
 		this.operator = operator;
@@ -44,6 +49,7 @@ public class Project {
 		this.datafolder = name; //TODO: change this to use a real os-path?
 		this.observations = new ArrayList<Observation>();
         this.last_synced = null;
+        this.metric_system = METRIC_SYSTEM_METRIC;
 	}
 	
 	public void close() {
