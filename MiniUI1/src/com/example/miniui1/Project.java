@@ -21,9 +21,9 @@ public class Project {
 	public static final String STATUS_CLOSED = "closed";
 	public static final String STATUS_REOPENED = "reopened";
 
-    public static final String METRIC_SYSTEM_IMPERIAL = "IMPERIAL";
-    public static final String METRIC_SYSTEM_METRIC = "METRIC";
-    public static final String METRIC_SYSTEM_STANDARD = "STANDARD";
+    public static final String METRIC_SYSTEM_IMPERIAL = "imperial";
+    public static final String METRIC_SYSTEM_METRIC = "metric";
+    public static final String METRIC_SYSTEM_STANDARD = "standard";
 
 	public String name;
 	public String client;
