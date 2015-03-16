@@ -8,5 +8,8 @@
         <item android:id="@+id/delete"
             android:title="@string/menu_delete"
         />
+        <item android:id="@+id/setworkingproject"
+        android:title="@string/menu_setworkingproject"
+        />
 </menu>
 <!-- android:icon="@android:drawable/my_icon_delete" -->

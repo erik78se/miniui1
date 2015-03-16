@@ -9,12 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+
+/**
+ * This singleton holds application global stuff.
+ *
+ * The SharedPreference: working_project
+ * is the preference to find the project to work with.
+ *
+ */
 
 public class GlobalApplication extends Application {
 	
@@ -26,35 +36,51 @@ public class GlobalApplication extends Application {
 	public static GlobalApplication getInstance() {
 		return singleton;
 	}
-	
 
-	public void setWorkingProject(Project p) {
-		gWorkingProject = p;
-	}
 
-	public Project getWorkingProject() {
-		return gWorkingProject;
-	}
-	
-	public void addProject(Project p) {
-		Log.d("GLOBAL", String.format("addProject(<%s>)", p.name ));
-		this.gProjects.add(p);
-	}
-	
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		singleton = this;
-		// Now prepare the Application singleton.
-		if (! populateProjects() ) {
-			Toast.makeText(getApplicationContext(), "No project found, start a new one.", Toast.LENGTH_LONG).show();
-		} else {
-			setWorkingProject((Project) getLatestProject());
-		}
+
+        // Try to get stored working project
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String stored_wp = preferences.getString("working_project", null);
+
+		if ( populateProjects() ) {
+            Project pObj = null;
+            for(Project p: gProjects){
+                try {
+                    if (p.name.equals(stored_wp)) {
+                        pObj = p;
+                        setWorkingProject(pObj);
+                    }
+                } catch (NullPointerException ne) {
+                    setWorkingProject( getLatestProject() );
+                }
+            }
+        }
 	}
-	
-	
+
+    public void setWorkingProject(Project p) {
+        //Set workingProject
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("working_project", p.name);
+        editor.commit();
+
+        gWorkingProject = p;
+    }
+
+    public Project getWorkingProject() {
+        return gWorkingProject;
+    }
+
+    public void addProject(Project p) {
+        Log.d("GLOBAL", String.format("addProject(<%s>)", p.name ));
+        this.gProjects.add(p);
+    }
+
 	// Try populate the "allProjects" with projects found on disk
 	private boolean populateProjects() {
         File[] project_dirs;
@@ -100,42 +126,10 @@ public class GlobalApplication extends Application {
 		// Tell caller if we managed to read some projects or not
 		return (! gProjects.isEmpty());
 	}
-	
-	
-	// Looks in the "getExternalFilesDir" folder
-	// picks out the file/folder with the last creation date.
-	// uses that for latest project.
-	// TODO: read the json metadata files to properly create a list of project
-	
-	/**
-	public boolean setLatestWorkingProject() {
-		File appbasepath = getExternalFilesDir(null);
-		File[] project_dirs = appbasepath.listFiles();
-		long lastMod = Long.MIN_VALUE;
-		File choice = null;
-		for (File projdir : project_dirs) {
-			String pfn = appbasepath.toString() + "/" + projdir.toString() + "/project.json";
-			java.io.File projectfile = new java.io.File(pfn);
-			Log.d("GLOBAL", String.format("Project File found with age: %s,  %s", projdir.getName(), String.valueOf( projdir.lastModified() )) );
-		    if (projdir.lastModified() > lastMod && projectfile.exists() ) {
-		    	choice = projdir;
-		        lastMod = projdir.lastModified();
-		    }
-		}
-		if ( choice != null ) {
-			//TODO: use real project data here.
-			Project p = new Project(choice.getName(), "dummy-a", "dummy-b", "dummy-c");
-			setWorkingProject( p );
-			return true;
-		} else {
-			return false;
-		}
-	}
-	**/
-	
+
+
+    //TODO: Perhaps return something else
 	public Project getLatestProject() {
-		// For now, just return any
-		return gProjects.get(0);
-	}
-	
+        return gProjects.get(0);
+    }
 }

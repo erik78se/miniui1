@@ -168,7 +168,7 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
     }
 
     /**
-     * MENU for List items
+     * Context MENU for List items (Edit, delete, Set Active)
      */
 
     @Override
@@ -180,17 +180,22 @@ public class ManageProjectActivity extends ListActivity implements AdapterView.O
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         switch(item.getItemId()) {
             case R.id.edit:
                 Toast.makeText(getApplicationContext(), "EDIT " + item , Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.delete:
-                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
                 Log.d(CLASSTAG, "DELETE ON = " + mProjects.get(info.position));
                 mProjects.remove(info.position);
                 mAdapter.notifyDataSetChanged();
                 // **confirmDelete()**;
                 Toast.makeText(getApplicationContext(), "DELETED " + info.position, Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.setworkingproject:
+                Log.d(CLASSTAG, "SETWORKINGPROJECT ON = " + mProjects.get(info.position));
+                Toast.makeText(getApplicationContext(), "ACTIVE " + info.position, Toast.LENGTH_SHORT).show();
+                ((GlobalApplication) getApplicationContext()).setWorkingProject(mProjects.get(info.position));
                 return true;
             default:
                 return super.onContextItemSelected(item);

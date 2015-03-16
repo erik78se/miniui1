@@ -13,6 +13,6 @@
     <string name="menu_edit">edit</string>
     <string name="menu_delete">delete</string>
     <string name="uncertain">uncertain</string>
-
+    <string name="menu_setworkingproject">Set as Active</string>
 
 </resources>
